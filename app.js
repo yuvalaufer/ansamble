@@ -215,11 +215,11 @@ function addNewMonthFromDropdown() {
     showStatus(`נוסף חודש חדש: ${monthName}`, "success");
 }
 
-// פונקציה לעדכון צבע הרקע של השורה לפי הסטטוס
+// פונקציה לעדכון צבע הרקע של השורה לפי הסטטוס (גוונים ברורים, לא מסנוורים)
 function getRowBgClass(status) {
-    if (status === "שולם") return "bg-emerald-50/80 hover:bg-emerald-100/60";
-    if (status === "שולם חלקי") return "bg-amber-50/80 hover:bg-amber-100/60";
-    return "bg-rose-50/80 hover:bg-rose-100/60"; // לא שולם
+    if (status === "שולם") return "bg-emerald-200 hover:bg-emerald-300 text-emerald-950";
+    if (status === "שולם חלקי") return "bg-amber-200 hover:bg-amber-300 text-amber-950";
+    return "bg-rose-200 hover:bg-rose-300 text-rose-950"; // לא שולם
 }
 
 function renderTable() {
@@ -256,13 +256,13 @@ function renderTable() {
         totalCollected += paidAmount;
 
         const tr = document.createElement("tr");
-        tr.className = `border-b border-slate-100 transition ${getRowBgClass(status)}`;
+        tr.className = `border-b border-slate-300/60 transition ${getRowBgClass(status)}`;
         tr.dataset.student = student;
 
         tr.innerHTML = `
-            <td class="py-3 px-4 font-medium text-slate-900">${student}</td>
+            <td class="py-3 px-4 font-bold text-slate-900">${student}</td>
             <td class="py-3 px-4">
-                <select onchange="handleStatusChange(this)" class="status-select border border-slate-200 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium">
+                <select onchange="handleStatusChange(this)" class="status-select border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium">
                     <option value="לא שולם" ${status === "לא שולם" ? "selected" : ""}>לא שולם</option>
                     <option value="שולם" ${status === "שולם" ? "selected" : ""}>שולם</option>
                     <option value="שולם חלקי" ${status === "שולם חלקי" ? "selected" : ""}>שולם חלקי</option>
@@ -270,10 +270,10 @@ function renderTable() {
             </td>
             <td class="py-3 px-4">
                 <input type="number" value="${paidAmount}" ${status !== "שולם חלקי" ? "disabled" : ""} 
-                    class="paid-input w-24 border border-slate-200 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm disabled:bg-slate-100/70 disabled:text-slate-400 font-medium" 
+                    class="paid-input w-24 border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm disabled:bg-slate-100 disabled:text-slate-500 font-medium" 
                     oninput="calculateTotals()">
             </td>
-            <td class="py-3 px-4 font-semibold remaining-cell ${remaining > 0 ? 'text-amber-700' : 'text-emerald-700'}">
+            <td class="py-3 px-4 font-bold remaining-cell ${remaining > 0 ? 'text-amber-950' : 'text-emerald-950'}">
                 ${remaining} ₪
             </td>
         `;
@@ -290,7 +290,7 @@ function handleStatusChange(selectEl) {
     const monthlyFee = getMonthlyFeeForMonth(currentMonth);
 
     // עדכון מיידי של צבע רקע השורה בהתאם לסטטוס הנבחר
-    row.className = `border-b border-slate-100 transition ${getRowBgClass(status)}`;
+    row.className = `border-b border-slate-300/60 transition ${getRowBgClass(status)}`;
 
     if (status === "שולם") {
         paidInput.value = monthlyFee;
@@ -332,7 +332,7 @@ function calculateTotals() {
 
         totalCollected += paidAmount;
         remainingCell.textContent = `${remaining} ₪`;
-        remainingCell.className = `py-3 px-4 font-semibold remaining-cell ${remaining > 0 ? 'text-amber-700' : 'text-emerald-700'}`;
+        remainingCell.className = `py-3 px-4 font-bold remaining-cell ${remaining > 0 ? 'text-amber-950' : 'text-emerald-950'}`;
     });
 
     document.getElementById("total-collected").textContent = `${totalCollected} ₪`;
