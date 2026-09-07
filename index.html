@@ -97,6 +97,15 @@
                     </tbody>
                 </table>
             </div>
+            <!-- סיכום מפורט לקבועים לפי סטטוס בתחתית הטבלה -->
+            <div class="bg-sky-50/70 px-6 py-4 border-t border-sky-200 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs sm:text-sm font-bold text-slate-700 gap-2">
+                <span>סיכום תלמידים קבועים:</span>
+                <div class="flex items-center gap-4 flex-wrap">
+                    <span class="text-emerald-800 bg-emerald-100 px-3 py-1 rounded-lg">שולם מלא: <strong id="reg-summary-paid">0</strong> ₪</span>
+                    <span class="text-amber-800 bg-amber-100 px-3 py-1 rounded-lg">שולם חלקי: <strong id="reg-summary-partial">0</strong> ₪</span>
+                    <span class="text-rose-800 bg-rose-100 px-3 py-1 rounded-lg">יתרת חוב: <strong id="reg-summary-unpaid">0</strong> ₪</span>
+                </div>
+            </div>
         </div>
 
         <!-- טבלת תלמידי ניסיון -->
@@ -137,9 +146,19 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- סיכום מפורט לניסיון לפי סטטוס בתחתית הטבלה -->
+            <div class="bg-sky-50/70 px-4 py-3 rounded-xl border border-sky-200 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs sm:text-sm font-bold text-slate-700 gap-2 mt-4">
+                <span>סיכום תלמידי ניסיון:</span>
+                <div class="flex items-center gap-4 flex-wrap">
+                    <span class="text-emerald-800 bg-emerald-100 px-3 py-1 rounded-lg">שולם מלא: <strong id="trial-summary-paid">0</strong> ₪</span>
+                    <span class="text-amber-800 bg-amber-100 px-3 py-1 rounded-lg">שולם חלקי: <strong id="trial-summary-partial">0</strong> ₪</span>
+                    <span class="text-rose-800 bg-rose-100 px-3 py-1 rounded-lg">טרם שולם: <strong id="trial-summary-unpaid">0</strong> משתתפים</span>
+                </div>
+            </div>
         </div>
 
-        <!-- ניהול רשימת תלמידים קבועים (מוגן מפני שגיאות) -->
+        <!-- ניהול רשימת תלמידים קבועים -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-sky-200 space-y-4">
             <div>
                 <h2 class="font-extrabold text-slate-800 text-base">ניהול רשימת תלמידים קבועים</h2>
