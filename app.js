@@ -580,6 +580,16 @@ function deleteStudent(index) {
     if (!confirm(`האם אתה בטוח שברצונך למחוק את ${name}?`)) return;
 
     appData.students.splice(index, 1);
+
+    // הסרת התלמיד מנתוני התשלומים בכל החודשים כדי שיימחק ויעלם מהטבלאות מיד
+    if (appData.payments) {
+        Object.keys(appData.payments).forEach(month => {
+            if (appData.payments[month][name]) {
+                delete appData.payments[month][name];
+            }
+        });
+    }
+
     renderStudentsManagementList();
     renderTable();
     showStatus(`התלמיד ${name} הוסר מהרשימה.`, "success");
