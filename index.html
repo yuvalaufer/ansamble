@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            /* רקע מעודן וכהה יותר בין תכלת לכחול שמונע סינוור */
             background-color: #04066E; 
         }
     </style>
@@ -24,7 +23,6 @@
                 <p class="text-sm text-slate-500 mt-1">מעקב גבייה וניהול תלמידים</p>
             </div>
             
-            <!-- כפתורי פעולה בראש העמוד -->
             <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
                 <button onclick="toggleTokenSettings()" class="text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 px-3.5 py-2 rounded-xl transition shadow-sm border border-slate-200 flex items-center gap-1.5">
                     ⚙️ הגדרות גישה
@@ -35,7 +33,7 @@
             </div>
         </header>
 
-        <!-- פאנל הגדרות טוקן (מוסתר כברירת מחדל) -->
+        <!-- פאנל הגדרות טוקן -->
         <div id="token-panel" class="hidden bg-amber-50 border border-amber-200 p-5 rounded-2xl shadow-sm text-sm">
             <p class="font-bold text-amber-900 mb-1">הגדרת חיבור ל-GitHub (נדרש פעם אחת בלבד בדפדפן זה):</p>
             <p class="text-amber-800 mb-3 text-xs">הזן Personal Access Token עם הרשאות Contents (Read and write) כדי לאפשר שמירה אוטומטית.</p>
@@ -49,25 +47,27 @@
         <div id="status-message" class="hidden p-4 rounded-xl text-sm font-medium shadow-sm"></div>
 
         <!-- פאנל שליטה ובחירת חודש -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-sky-200 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap">
-                <label for="month-select" class="font-bold text-slate-700 text-sm">בחר חודש:</label>
-                <select id="month-select" onchange="changeMonth()" class="border border-slate-300 focus:ring-2 focus:ring-sky-500 focus:outline-none rounded-xl px-3.5 py-2 text-sm bg-slate-50 font-medium shadow-sm">
-                    <!-- יתמלא דינמית ב-JS -->
-                </select>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-sky-200 flex flex-col gap-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap">
+                    <label for="month-select" class="font-bold text-slate-700 text-sm">בחר חודש:</label>
+                    <select id="month-select" onchange="changeMonth()" class="border border-slate-300 focus:ring-2 focus:ring-sky-500 focus:outline-none rounded-xl px-3.5 py-2 text-sm bg-slate-50 font-medium shadow-sm">
+                    </select>
+                </div>
+                
+                <div class="flex items-center gap-2 bg-sky-50 p-2 rounded-xl border border-sky-200 w-full sm:w-auto justify-end flex-wrap">
+                    <select id="new-month-name" class="border border-sky-300 rounded-lg px-2 py-1.5 text-xs bg-white text-slate-700 font-medium"></select>
+                    <select id="new-month-year" class="border border-sky-300 rounded-lg px-2 py-1.5 text-xs bg-white text-slate-700 font-medium"></select>
+                    <button onclick="addNewMonthFromDropdown()" class="bg-sky-700 hover:bg-sky-800 text-white text-xs px-3 py-1.5 rounded-lg font-bold transition shadow-sm">
+                        + הוסף חודש
+                    </button>
+                </div>
             </div>
-            
-            <!-- פאנל הוספת חודש חדש באמצעות בחירה מרשימות גלילה -->
-            <div class="flex items-center gap-2 bg-sky-50 p-2 rounded-xl border border-sky-200 w-full sm:w-auto justify-end flex-wrap">
-                <select id="new-month-name" class="border border-sky-300 rounded-lg px-2 py-1.5 text-xs bg-white text-slate-700 font-medium">
-                    <!-- יתמלא חודשים -->
-                </select>
-                <select id="new-month-year" class="border border-sky-300 rounded-lg px-2 py-1.5 text-xs bg-white text-slate-700 font-medium">
-                    <!-- יתמלא שנים -->
-                </select>
-                <button onclick="addNewMonthFromDropdown()" class="bg-sky-700 hover:bg-sky-800 text-white text-xs px-3 py-1.5 rounded-lg font-bold transition shadow-sm">
-                    + הוסף חודש
-                </button>
+
+            <!-- סה"כ תשלומים מתחת לבחירת החודש -->
+            <div class="bg-sky-50/70 px-4 py-3 rounded-xl border border-sky-200 flex justify-between items-center text-sm font-bold text-slate-700">
+                <span>סה"כ תשלומים שהתקבלו לחודש זה:</span>
+                <span id="total-collected-top" class="text-emerald-700 text-lg font-extrabold">0 ₪</span>
             </div>
         </div>
 
@@ -94,29 +94,72 @@
                         </tr>
                     </thead>
                     <tbody id="payments-tbody" class="divide-y divide-slate-100 text-sm font-medium">
-                        <!-- יתמלא דינמית ב-JS -->
                     </tbody>
                 </table>
             </div>
-            <!-- סיכום הכנסות לחודש -->
-            <div class="bg-sky-50/70 px-6 py-4 border-t border-sky-200 flex justify-between items-center text-sm font-bold text-slate-700">
-                <span>סה"כ גבייה לחודש הנבחר:</span>
-                <span id="total-collected" class="text-emerald-700 text-lg font-extrabold">0 ₪</span>
+        </div>
+
+        <!-- טבלת תלמידי ניסיון -->
+        <div class="bg-white rounded-2xl shadow-sm border border-sky-200 overflow-hidden p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-sky-100 pb-4">
+                <div>
+                    <h2 class="font-extrabold text-slate-800 text-base">תלמידי מפגש ניסיון</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">ניהול משתתפים במפגשי ניסיון לחודש הנבחר</p>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="text-sm font-bold text-slate-700 flex items-center gap-2">
+                        <span>עלות ניסיון:</span>
+                        <input type="number" id="trial-fee-input" onchange="updateTrialFee(this.value)" class="w-20 border border-slate-300 rounded-lg px-2 py-1 text-sm bg-white font-extrabold text-sky-700 text-center shadow-inner">
+                        <span class="text-slate-500">₪</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- הוספת תלמיד ניסיון חדש -->
+            <div class="flex gap-2 max-w-md">
+                <input type="text" id="new-trial-name" placeholder="שם משתתף/ת ניסיון..." class="flex-1 border border-slate-300 rounded-xl px-3.5 py-2 text-sm bg-slate-50 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                <button onclick="addTrialStudent()" class="bg-sky-700 hover:bg-sky-800 text-white px-4 py-2 rounded-xl text-sm font-bold transition shadow-sm">
+                    + הוסף לניסיון
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="bg-sky-100/70 text-slate-700 text-xs uppercase font-bold tracking-wider border-b border-sky-200">
+                            <th class="py-3 px-4">שם משתתף/ת</th>
+                            <th class="py-3 px-4">סטטוס תשלום</th>
+                            <th class="py-3 px-4">סכום ששולם (₪)</th>
+                            <th class="py-3 px-4">פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trial-tbody" class="divide-y divide-slate-100 text-sm font-medium">
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- ניהול רשימת תלמידים -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-sky-200">
-            <h2 class="font-extrabold text-slate-800 mb-1 text-base">ניהול רשימת תלמידים</h2>
-            <p class="text-xs text-slate-500 mb-3">שם אחד בכל שורה. כל שינוי יתעדכן בטבלה.</p>
-            <textarea id="students-textarea" rows="5" class="w-full border border-slate-300 focus:ring-2 focus:ring-sky-500 focus:outline-none rounded-xl p-4 text-sm bg-slate-50 shadow-inner mb-4 leading-relaxed font-medium"></textarea>
-            <button onclick="updateStudentsList()" class="bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-sm transition">
-                עדכן רשימת תלמידים
-            </button>
+        <!-- ניהול רשימת תלמידים קבועים (מוגן מפני שגיאות) -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-sky-200 space-y-4">
+            <div>
+                <h2 class="font-extrabold text-slate-800 text-base">ניהול רשימת תלמידים קבועים</h2>
+                <p class="text-xs text-slate-500 mt-0.5">הוספה, עריכה או מחיקה של תלמידים מוגנת ובטוחה ללא סיכון לשורות כפולות.</p>
+            </div>
+
+            <div class="flex gap-2 max-w-md">
+                <input type="text" id="new-student-name" placeholder="שם תלמיד/ה חדש/ה..." class="flex-1 border border-slate-300 rounded-xl px-3.5 py-2 text-sm bg-slate-50 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                <button onclick="addStudent()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-bold transition shadow-sm">
+                    + הוסף תלמיד
+                </button>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                <ul id="students-list-container" class="divide-y divide-slate-200 max-h-60 overflow-y-auto">
+                </ul>
+            </div>
         </div>
     </div>
 
-    <!-- טעינת קוד ה-JavaScript -->
     <script src="app.js"></script>
 </body>
 </html>
