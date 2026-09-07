@@ -398,7 +398,7 @@ function calculateTotals() {
     const regularRows = document.querySelectorAll("#payments-tbody tr");
     let regPaidTotal = 0;
     let regPartialTotal = 0;
-    let regUnpaidTotal = 0;
+    let regUnpaidCount = 0;
     const monthlyFee = getMonthlyFeeForMonth(currentMonth);
 
     regularRows.forEach(row => {
@@ -418,7 +418,7 @@ function calculateTotals() {
         } else {
             paidAmount = 0;
             remaining = monthlyFee;
-            regUnpaidTotal += remaining;
+            regUnpaidCount += 1;
         }
 
         grandTotalCollected += paidAmount;
@@ -429,7 +429,7 @@ function calculateTotals() {
     // עדכון סיכום קבועים בתחתית הטבלה
     document.getElementById("reg-summary-paid").textContent = regPaidTotal;
     document.getElementById("reg-summary-partial").textContent = regPartialTotal;
-    document.getElementById("reg-summary-unpaid").textContent = regUnpaidTotal;
+    document.getElementById("reg-summary-unpaid").textContent = regUnpaidCount;
 
 
     // --- חישוב תלמידי ניסיון ---
@@ -581,7 +581,6 @@ function deleteStudent(index) {
 
     appData.students.splice(index, 1);
 
-    // הסרת התלמיד מנתוני התשלומים בכל החודשים כדי שיימחק ויעלם מהטבלאות מיד
     if (appData.payments) {
         Object.keys(appData.payments).forEach(month => {
             if (appData.payments[month][name]) {
