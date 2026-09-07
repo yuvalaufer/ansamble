@@ -1,4 +1,3 @@
-// --- הגדרות חיבור לריפוזיטורי ב-GitHub ---
 const GITHUB_USER = "yuvalaufer";
 const GITHUB_REPO = "ansamble";
 const BRANCH = "main";
@@ -85,9 +84,7 @@ async function loadDataFromGitHub() {
     try {
         const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
         const response = await fetch(url, {
-            headers: {
-                'Accept': 'application/vnd.github.v3+json'
-            }
+            headers: { 'Accept': 'application/vnd.github.v3+json' }
         });
 
         if (!response.ok) {
@@ -95,13 +92,15 @@ async function loadDataFromGitHub() {
         }
 
         const fileData = await response.json();
-        
-        // פענוח מדויק ותומך עברית של Base64
         const binaryString = atob(fileData.content.replace(/\s/g, ''));
         const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
         const decodedContent = new TextDecoder('utf-8').decode(bytes);
         
         appData = JSON.parse(decodedContent);
+
+        if (!appData.trial_students) {
+            appData.trial_students = {};
+        }
 
         initAppUI();
         showStatus("הנתונים נטענו בהצלחה מ-GitHub!", "success");
@@ -113,20 +112,17 @@ async function loadDataFromGitHub() {
 
 function initAppUI() {
     if (!appData) return;
-    document.getElementById("students-textarea").value = (appData.students || []).join("\n");
     setupMonthsDropdown();
+    renderStudentsManagementList();
 }
 
 function getMonthlyFeeForMonth(monthStr) {
     if (!appData) return 330;
-    
     if (appData.monthly_fees && appData.monthly_fees[monthStr] !== undefined) {
         return appData.monthly_fees[monthStr];
     }
-    
     const allMonths = getAllSortedMonths();
     const currentIndex = allMonths.indexOf(monthStr);
-    
     if (currentIndex > 0) {
         for (let i = currentIndex - 1; i >= 0; i--) {
             let prevMonth = allMonths[i];
@@ -135,18 +131,30 @@ function getMonthlyFeeForMonth(monthStr) {
             }
         }
     }
-    
     return (appData.settings && appData.settings.monthly_fee) ? appData.settings.monthly_fee : 330;
+}
+
+function getTrialFee() {
+    if (appData && appData.settings && appData.settings.trial_fee !== undefined) {
+        return appData.settings.trial_fee;
+    }
+    return 50;
 }
 
 function updateMonthlyFee(newVal) {
     const fee = parseInt(newVal) || 0;
-    if (!appData.monthly_fees) {
-        appData.monthly_fees = {};
-    }
+    if (!appData.monthly_fees) appData.monthly_fees = {};
     appData.monthly_fees[currentMonth] = fee;
     renderTable();
     showStatus(`הסכום החודשי עודכן ל-${fee} ₪ עבור חודש ${currentMonth} והלאה.`, "success");
+}
+
+function updateTrialFee(newVal) {
+    const fee = parseInt(newVal) || 0;
+    if (!appData.settings) appData.settings = {};
+    appData.settings.trial_fee = fee;
+    renderTrialTable();
+    showStatus(`עלות מפגש ניסיון עודכנה ל-${fee} ₪.`, "success");
 }
 
 function getAllSortedMonths() {
@@ -173,7 +181,6 @@ function setupMonthsDropdown() {
     select.innerHTML = "";
 
     let sortedMonths = getAllSortedMonths();
-
     sortedMonths.forEach(m => {
         const opt = document.createElement("option");
         opt.value = m;
@@ -190,12 +197,14 @@ function setupMonthsDropdown() {
     select.value = currentMonth;
 
     renderTable();
+    renderTrialTable();
 }
 
 function changeMonth() {
     saveTableToMemory();
     currentMonth = document.getElementById("month-select").value;
     renderTable();
+    renderTrialTable();
 }
 
 function addNewMonthFromDropdown() {
@@ -212,14 +221,14 @@ function addNewMonthFromDropdown() {
     document.getElementById("month-select").value = monthName;
     currentMonth = monthName;
     renderTable();
+    renderTrialTable();
     showStatus(`נוסף חודש חדש: ${monthName}`, "success");
 }
 
-// פונקציה לעדכון צבע הרקע של השורה לפי הסטטוס (גוונים ברורים, לא מסנוורים)
 function getRowBgClass(status) {
     if (status === "שולם") return "bg-emerald-200 hover:bg-emerald-300 text-emerald-950";
     if (status === "שולם חלקי") return "bg-amber-200 hover:bg-amber-300 text-amber-950";
-    return "bg-rose-200 hover:bg-rose-300 text-rose-950"; // לא שולם
+    return "bg-rose-200 hover:bg-rose-300 text-rose-950";
 }
 
 function renderTable() {
@@ -230,12 +239,9 @@ function renderTable() {
     document.getElementById("monthly-fee-input").value = monthlyFee;
 
     const monthPayments = appData.payments[currentMonth] || {};
-    
     const masterStudents = appData.students || [];
     const pastStudents = Object.keys(monthPayments);
     const allStudents = Array.from(new Set([...masterStudents, ...pastStudents]));
-
-    let totalCollected = 0;
 
     allStudents.forEach(student => {
         const pData = monthPayments[student] || { status: "לא שולם", paid_amount: 0 };
@@ -252,8 +258,6 @@ function renderTable() {
             paidAmount = 0;
             remaining = monthlyFee;
         }
-
-        totalCollected += paidAmount;
 
         const tr = document.createElement("tr");
         tr.className = `border-b border-slate-300/60 transition ${getRowBgClass(status)}`;
@@ -280,7 +284,63 @@ function renderTable() {
         tbody.appendChild(tr);
     });
 
-    document.getElementById("total-collected").textContent = `${totalCollected} ₪`;
+    calculateTotals();
+}
+
+function renderTrialTable() {
+    const tbody = document.getElementById("trial-tbody");
+    tbody.innerHTML = "";
+
+    const trialFee = getTrialFee();
+    document.getElementById("trial-fee-input").value = trialFee;
+
+    if (!appData.trial_students) appData.trial_students = {};
+    if (!appData.trial_students[currentMonth]) appData.trial_students[currentMonth] = {};
+
+    const monthTrials = appData.trial_students[currentMonth];
+
+    Object.keys(monthTrials).forEach(name => {
+        const tData = monthTrials[name];
+        const status = tData.status;
+        let paidAmount = tData.paid_amount;
+
+        if (status === "שולם") paidAmount = trialFee;
+        else if (status === "לא שולם") paidAmount = 0;
+
+        const tr = document.createElement("tr");
+        tr.className = `border-b border-slate-300/60 transition ${getRowBgClass(status)}`;
+        tr.dataset.trialName = name;
+
+        tr.innerHTML = `
+            <td class="py-3 px-4 font-bold text-slate-900 flex items-center gap-2">
+                <span>${name}</span>
+                <span class="text-xs bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full font-medium">ניסיון</span>
+            </td>
+            <td class="py-3 px-4">
+                <select onchange="handleTrialStatusChange(this)" class="trial-status-select border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium">
+                    <option value="לא שולם" ${status === "לא שולם" ? "selected" : ""}>לא שולם</option>
+                    <option value="שולם" ${status === "שולם" ? "selected" : ""}>שולם</option>
+                    <option value="שולם חלקי" ${status === "שולם חלקי" ? "selected" : ""}>שולם חלקי</option>
+                </select>
+            </td>
+            <td class="py-3 px-4">
+                <input type="number" value="${paidAmount}" ${status !== "שולם חלקי" ? "disabled" : ""} 
+                    class="trial-paid-input w-24 border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm disabled:bg-slate-100 disabled:text-slate-500 font-medium" 
+                    oninput="calculateTotals()">
+            </td>
+            <td class="py-3 px-4 flex items-center gap-2">
+                <button onclick="promoteTrialStudent('${name}')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition">
+                    צרף לתלמידים קבועים
+                </button>
+                <button onclick="removeTrialStudent('${name}')" class="bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg shadow-sm transition">
+                    מחק
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    calculateTotals();
 }
 
 function handleStatusChange(selectEl) {
@@ -289,7 +349,6 @@ function handleStatusChange(selectEl) {
     const paidInput = row.querySelector(".paid-input");
     const monthlyFee = getMonthlyFeeForMonth(currentMonth);
 
-    // עדכון מיידי של צבע רקע השורה בהתאם לסטטוס הנבחר
     row.className = `border-b border-slate-300/60 transition ${getRowBgClass(status)}`;
 
     if (status === "שולם") {
@@ -308,15 +367,40 @@ function handleStatusChange(selectEl) {
     calculateTotals();
 }
 
+function handleTrialStatusChange(selectEl) {
+    const row = selectEl.closest("tr");
+    const status = selectEl.value;
+    const paidInput = row.querySelector(".trial-paid-input");
+    const trialFee = getTrialFee();
+
+    row.className = `border-b border-slate-300/60 transition ${getRowBgClass(status)}`;
+
+    if (status === "שולם") {
+        paidInput.value = trialFee;
+        paidInput.disabled = true;
+    } else if (status === "שולם חלקי") {
+        paidInput.disabled = false;
+        if (parseInt(paidInput.value) >= trialFee || parseInt(paidInput.value) === 0) {
+            paidInput.value = "";
+        }
+    } else {
+        paidInput.value = 0;
+        paidInput.disabled = true;
+    }
+
+    calculateTotals();
+}
+
 function calculateTotals() {
-    const rows = document.querySelectorAll("#payments-tbody tr");
-    const monthlyFee = getMonthlyFeeForMonth(currentMonth);
     let totalCollected = 0;
 
-    rows.forEach(row => {
+    // חישוב תלמידים קבועים
+    const regularRows = document.querySelectorAll("#payments-tbody tr");
+    regularRows.forEach(row => {
         const status = row.querySelector(".status-select").value;
         const paidInput = row.querySelector(".paid-input");
         const remainingCell = row.querySelector(".remaining-cell");
+        const monthlyFee = getMonthlyFeeForMonth(currentMonth);
 
         let paidAmount = parseInt(paidInput.value) || 0;
         let remaining = 0;
@@ -335,7 +419,23 @@ function calculateTotals() {
         remainingCell.className = `py-3 px-4 font-bold remaining-cell ${remaining > 0 ? 'text-amber-950' : 'text-emerald-950'}`;
     });
 
-    document.getElementById("total-collected").textContent = `${totalCollected} ₪`;
+    // חישוב תלמידי ניסיון
+    const trialRows = document.querySelectorAll("#trial-tbody tr");
+    trialRows.forEach(row => {
+        const status = row.querySelector(".trial-status-select").value;
+        const paidInput = row.querySelector(".trial-paid-input");
+        const trialFee = getTrialFee();
+
+        let paidAmount = parseInt(paidInput.value) || 0;
+        if (status === "שולם") {
+            paidAmount = trialFee;
+        } else if (status === "לא שולם") {
+            paidAmount = 0;
+        }
+        totalCollected += paidAmount;
+    });
+
+    document.getElementById("total-collected-top").textContent = `${totalCollected} ₪`;
 }
 
 function saveTableToMemory() {
@@ -354,15 +454,194 @@ function saveTableToMemory() {
             paid_amount: paidAmount
         };
     });
+
+    if (!appData.trial_students) appData.trial_students = {};
+    if (!appData.trial_students[currentMonth]) appData.trial_students[currentMonth] = {};
+
+    const trialRows = document.querySelectorAll("#trial-tbody tr");
+    trialRows.forEach(row => {
+        const name = row.dataset.trialName;
+        const status = row.querySelector(".trial-status-select").value;
+        const paidAmount = parseInt(row.querySelector(".trial-paid-input").value) || 0;
+
+        appData.trial_students[currentMonth][name] = {
+            status: status,
+            paid_amount: paidAmount
+        };
+    });
 }
 
-function updateStudentsList() {
-    const textareaVal = document.getElementById("students-textarea").value;
-    const newStudents = textareaVal.split("\n").map(s => s.trim()).filter(s => s.length > 0);
-    
-    appData.students = newStudents;
+// ניהול רשימת תלמידים קבועים בצורה בטוחה (אינטראקטיבית)
+function renderStudentsManagementList() {
+    const container = document.getElementById("students-list-container");
+    container.innerHTML = "";
+
+    if (!appData.students) appData.students = [];
+
+    appData.students.forEach((student, index) => {
+        const li = document.createElement("li");
+        li.className = "flex items-center justify-between p-3 bg-white";
+
+        li.innerHTML = `
+            <div class="flex items-center gap-2 flex-1 ml-4">
+                <input type="text" value="${student}" id="student-edit-${index}" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white flex-1 focus:ring-2 focus:ring-sky-500 focus:outline-none font-medium">
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="updateStudentName(${index})" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">עדכן</button>
+                <button onclick="deleteStudent(${index})" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">מחק</button>
+            </div>
+        `;
+        container.appendChild(li);
+    });
+}
+
+function addStudent() {
+    saveTableToMemory();
+    const input = document.getElementById("new-student-name");
+    const name = input.value.trim();
+    if (!name) return;
+
+    if (appData.students.includes(name)) {
+        showStatus("התלמיד כבר קיים ברשימה", "error");
+        return;
+    }
+
+    appData.students.push(name);
+    input.value = "";
+    renderStudentsManagementList();
     renderTable();
-    showStatus("רשימת התלמידים עודכנה בזיכרון. אל תשכח ללחוץ על 'שמור שינויים'!", "success");
+    showStatus(`התלמיד ${name} נוסף בהצלחה!`, "success");
+}
+
+function updateStudentName(index) {
+    saveTableToMemory();
+    const inputEl = document.getElementById(`student-edit-${index}`);
+    const newName = inputEl.value.trim();
+    const oldName = appData.students[index];
+
+    if (!newName) {
+        showStatus("שם התלמיד לא יכול להיות ריק", "error");
+        return;
+    }
+
+    if (newName === oldName) return;
+
+    if (appData.students.includes(newName)) {
+        showStatus("שם זהה כבר קיים ברשימה", "error");
+        return;
+    }
+
+    appData.students[index] = newName;
+
+    // עדכון גם במבנה התשלומים ההיסטורי והנוכחי כדי למנוע כפילויות שורות
+    if (appData.payments) {
+        Object.keys(appData.payments).forEach(month => {
+            if (appData.payments[month][oldName]) {
+                appData.payments[month][newName] = appData.payments[month][oldName];
+                delete appData.payments[month][oldName];
+            }
+        });
+    }
+
+    renderStudentsManagementList();
+    renderTable();
+    showStatus("שם התלמיד עודכן בהצלחה בכל הטבלאות!", "success");
+}
+
+function deleteStudent(index) {
+    saveTableToMemory();
+    const name = appData.students[index];
+    if (!confirm(`האם אתה בטוח שברצונך למחוק את ${name}?`)) return;
+
+    appData.students.splice(index, 1);
+    renderStudentsManagementList();
+    renderTable();
+    showStatus(`התלמיד ${name} הוסר מהרשימה.`, "success");
+}
+
+// ניהול תלמידי ניסיון
+function addTrialStudent() {
+    saveTableToMemory();
+    const input = document.getElementById("new-trial-name");
+    const name = input.value.trim();
+    if (!name) return;
+
+    if (!appData.trial_students[currentMonth]) {
+        appData.trial_students[currentMonth] = {};
+    }
+
+    if (appData.trial_students[currentMonth][name]) {
+        showStatus("המשתתף כבר קיים ברשימת הניסיון בחודש זה", "error");
+        return;
+    }
+
+    appData.trial_students[currentMonth][name] = {
+        status: "לא שולם",
+        paid_amount: 0
+    };
+
+    input.value = "";
+    renderTrialTable();
+    showStatus(`משתתף ניסיון ${name} נוסף בהצלחה!`, "success");
+}
+
+function removeTrialStudent(name) {
+    saveTableToMemory();
+    if (appData.trial_students && appData.trial_students[currentMonth]) {
+        delete appData.trial_students[currentMonth][name];
+    }
+    renderTrialTable();
+    showStatus(`משתתף הניסיון ${name} הוסר.`, "success");
+}
+
+function promoteTrialStudent(name) {
+    saveTableToMemory();
+    
+    // שליפת הסכום ששולם בניסיון (אם שולם מלא או חלקי)
+    const trialData = appData.trial_students[currentMonth][name] || { status: "לא שולם", paid_amount: 0 };
+    const trialFee = getTrialFee();
+    let paidSoFar = 0;
+
+    if (trialData.status === "שולם") {
+        paidSoFar = trialFee;
+    } else if (trialData.status === "שולם חלקי") {
+        paidSoFar = trialData.paid_amount || 0;
+    } else {
+        paidSoFar = 0;
+    }
+
+    // הוספה לרשימת התלמידים הקבועים אם אינו קיים בה
+    if (!appData.students.includes(name)) {
+        appData.students.push(name);
+    }
+
+    // הוספה לטבלת התשלומים החודשית כתשלום חלקי (או מלא בהתאם לסכום הניסיון)
+    if (!appData.payments[currentMonth]) {
+        appData.payments[currentMonth] = {};
+    }
+
+    let initialStatus = "שולם חלקי";
+    const monthlyFee = getMonthlyFeeForMonth(currentMonth);
+
+    if (paidSoFar >= monthlyFee) {
+        initialStatus = "שולם";
+        paidSoFar = monthlyFee;
+    } else if (paidSoFar === 0) {
+        initialStatus = "לא שולם";
+    }
+
+    appData.payments[currentMonth][name] = {
+        status: initialStatus,
+        paid_amount: paidSoFar
+    };
+
+    // מחיקה מרשימת הניסיון לחודש זה
+    delete appData.trial_students[currentMonth][name];
+
+    renderStudentsManagementList();
+    renderTable();
+    renderTrialTable();
+    showStatus(`התלמיד ${name} צורף בהצלחה לתלמידים הקבועים! (שויך סכום של ${paidSoFar} ₪)`, "success");
 }
 
 async function saveDataToGitHub() {
@@ -392,8 +671,6 @@ async function saveDataToGitHub() {
         const fileSha = fileInfo.sha;
 
         const jsonString = JSON.stringify(appData, null, 2);
-        
-        // המרה חסינה ובטוחה ל-UTF-8 ובסיס 64 עבור גיטהאב
         const utf8Bytes = new TextEncoder().encode(jsonString);
         let binaryString = "";
         for (let i = 0; i < utf8Bytes.length; i++) {
