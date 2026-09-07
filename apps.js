@@ -75,8 +75,12 @@ async function loadDataFromGitHub() {
         }
 
         const fileData = await response.json();
-        // פענוח מ-Base64 לטקסט JSON רגיל
-        const decodedContent = decodeURIComponent(escape(window.atob(fileData.content)));
+        
+        // פענוח מדויק ובטוח של Base64 כולל תווים בעברית
+        const binaryString = atob(fileData.content.replace(/\s/g, ''));
+        const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
+        const decodedContent = new TextDecoder('utf-8').decode(bytes);
+        
         appData = JSON.parse(decodedContent);
 
         initAppUI();
@@ -337,9 +341,8 @@ async function saveDataToGitHub() {
         const fileInfo = await getRes.json();
         const fileSha = fileInfo.sha;
 
-        // ב. הכנת תוכן הקובץ המעודכן בקידוד Base64
+        // ב. הכנת תוכן הקובץ המעודכן בקידוד Base64 (תמיכה מלאה בתווים עבריים)
         const jsonString = JSON.stringify(appData, null, 2);
-        // תמיכה מלאה בתווים עבריים בקידוד Base64
         const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
 
         // ג. שליחת בקשת PUT לעדכון הקובץ ויצירת Commit
