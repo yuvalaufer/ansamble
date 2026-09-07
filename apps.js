@@ -1,22 +1,18 @@
 // --- הגדרות חיבור לריפוזיטורי ב-GitHub ---
-// ⚠️ יש לעדכן כאן את שם משתמש ושל הריפוזיטורי שלך ב-GitHub!
-const GITHUB_USER = "yuvalaufer"; // שם המשתמש שלך בגיטהאב
-const GITHUB_REPO = "ansamble";   // שם הריפוזיטורי שלך
-const BRANCH = "main";               // ענף ראשי (main או master)
-const FILE_PATH = "data.json";       // נתיב קובץ הנתונים בריפו
+const GITHUB_USER = "yuvalaufer";
+const GITHUB_REPO = "ansamble";
+const BRANCH = "main";
+const FILE_PATH = "data.json";
 
 let appData = null;
 let currentMonth = "";
 
-// רשימת חודשים בעברית
 const MONTH_NAMES = [
     "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
     "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"
 ];
 
-// טעינת הנתונים עם הפעלת העמוד
 window.addEventListener("DOMContentLoaded", async () => {
-    // טעינת טוקן שמור אם קיים
     const savedToken = localStorage.getItem("github_token");
     if (savedToken) {
         document.getElementById("github-token-input").value = savedToken;
@@ -25,13 +21,11 @@ window.addEventListener("DOMContentLoaded", async () => {
     await loadDataFromGitHub();
 });
 
-// פונקציה להצגה/הסתרה של פאנל הגדרות הטוקן
 function toggleTokenSettings() {
     const panel = document.getElementById("token-panel");
     panel.classList.toggle("hidden");
 }
 
-// שמירת הטוקן ב-localStorage של הדפדפן
 function saveToken() {
     const token = document.getElementById("github-token-input").value.trim();
     if (!token) {
@@ -43,7 +37,6 @@ function saveToken() {
     toggleTokenSettings();
 }
 
-// הצגת הודעות מערכת למשתמש
 function showStatus(text, type = "success") {
     const msgEl = document.getElementById("status-message");
     msgEl.textContent = text;
@@ -60,7 +53,6 @@ function showStatus(text, type = "success") {
     }, 4000);
 }
 
-// 1. טעינת נתונים מ-GitHub API
 async function loadDataFromGitHub() {
     try {
         const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
@@ -76,7 +68,6 @@ async function loadDataFromGitHub() {
 
         const fileData = await response.json();
         
-        // פענוח מדויק ובטוח של Base64 כולל תווים בעברית
         const binaryString = atob(fileData.content.replace(/\s/g, ''));
         const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
         const decodedContent = new TextDecoder('utf-8').decode(bytes);
@@ -91,21 +82,15 @@ async function loadDataFromGitHub() {
     }
 }
 
-// אתחול ממשק המשתמש והנתונים
 function initAppUI() {
     if (!appData) return;
 
-    // עדכון סכום חודשי מוצג
     document.getElementById("display-monthly-fee").textContent = appData.settings.monthly_fee;
-
-    // מילוי תיבת טקסט של התלמידים
     document.getElementById("students-textarea").value = (appData.students || []).join("\n");
 
-    // טיפול בחודשים
     setupMonthsDropdown();
 }
 
-// הגדרת רשימת החודשים בסלקט
 function setupMonthsDropdown() {
     const select = document.getElementById("month-select");
     select.innerHTML = "";
@@ -113,11 +98,9 @@ function setupMonthsDropdown() {
     const today = new Date();
     let defaultMonthStr = `${MONTH_NAMES[today.getMonth()]} ${today.getFullYear()}`;
 
-    // איסוף כל החודשים הקיימים בנתונים + החודש הנוכחי
     let monthsSet = new Set(Object.keys(appData.payments || {}));
     monthsSet.add(defaultMonthStr);
 
-    // מיון חודשים בסדר כרונולוגי
     let sortedMonths = Array.from(monthsSet).sort((a, b) => {
         let [m1, y1] = a.split(" ");
         let [m2, y2] = b.split(" ");
@@ -133,7 +116,6 @@ function setupMonthsDropdown() {
         select.appendChild(opt);
     });
 
-    // בחירת החודש הנוכחי או האחרון ברשימה
     if (!currentMonth || !sortedMonths.includes(currentMonth)) {
         currentMonth = sortedMonths.includes(defaultMonthStr) ? defaultMonthStr : sortedMonths[sortedMonths.length - 1];
     }
@@ -142,15 +124,12 @@ function setupMonthsDropdown() {
     renderTable();
 }
 
-// מעבר בין חודשים דרך הסלקט
 function changeMonth() {
-    // שמירת הנתונים של החודש הנוכחי מהטופס לפני החלפה
     saveTableToMemory();
     currentMonth = document.getElementById("month-select").value;
     renderTable();
 }
 
-// הוספת חודש חדש לבחירה
 function addNewMonth() {
     const monthName = prompt("הכנס שם חודש ושנה (למשל: יוני 2026):");
     if (!monthName) return;
@@ -166,7 +145,6 @@ function addNewMonth() {
     renderTable();
 }
 
-// הצגת טבלת התלמידים והתשלומים לחודש הנבחר
 function renderTable() {
     const tbody = document.getElementById("payments-tbody");
     tbody.innerHTML = "";
@@ -174,7 +152,6 @@ function renderTable() {
     const monthlyFee = appData.settings.monthly_fee;
     const monthPayments = appData.payments[currentMonth] || {};
     
-    // איסוף כל התלמידים: תלמידי המאסטר הנוכחיים + תלמידים שהיו להם נתונים בחודש הזה בעבר
     const masterStudents = appData.students || [];
     const pastStudents = Object.keys(monthPayments);
     const allStudents = Array.from(new Set([...masterStudents, ...pastStudents]));
@@ -186,7 +163,6 @@ function renderTable() {
         const status = pData.status;
         let paidAmount = pData.paid_amount;
 
-        // חישוב יתרה
         let remaining = 0;
         if (status === "שולם") {
             paidAmount = monthlyFee;
@@ -200,7 +176,6 @@ function renderTable() {
 
         totalCollected += paidAmount;
 
-        // יצירת שורה בטבלה
         const tr = document.createElement("tr");
         tr.className = "border-b border-gray-100 hover:bg-gray-50/50 transition";
         tr.dataset.student = student;
@@ -229,7 +204,6 @@ function renderTable() {
     document.getElementById("total-collected").textContent = `${totalCollected} ₪`;
 }
 
-// טיפול בשינוי סטטוס תשלום בשורה
 function handleStatusChange(selectEl) {
     const row = selectEl.closest("tr");
     const status = selectEl.value;
@@ -244,7 +218,7 @@ function handleStatusChange(selectEl) {
         if (parseInt(paidInput.value) >= monthlyFee || parseInt(paidInput.value) === 0) {
             paidInput.value = "";
         }
-    } else { // לא שולם
+    } else {
         paidInput.value = 0;
         paidInput.disabled = true;
     }
@@ -252,7 +226,6 @@ function handleStatusChange(selectEl) {
     calculateTotals();
 }
 
-// חישוב מחדש של היתרות וסכום הגבייה בטבלה
 function calculateTotals() {
     const rows = document.querySelectorAll("#payments-tbody tr");
     const monthlyFee = appData.settings.monthly_fee;
@@ -283,7 +256,6 @@ function calculateTotals() {
     document.getElementById("total-collected").textContent = `${totalCollected} ₪`;
 }
 
-// שמירת נתוני הטבלה המוצגת כרגע אל תוך אובייקט הזיכרון (appData)
 function saveTableToMemory() {
     if (!appData) return;
     if (!appData.payments) appData.payments = {};
@@ -302,7 +274,6 @@ function saveTableToMemory() {
     });
 }
 
-// עדכון רשימת התלמידים מתיבת הטקסט
 function updateStudentsList() {
     const textareaVal = document.getElementById("students-textarea").value;
     const newStudents = textareaVal.split("\n").map(s => s.trim()).filter(s => s.length > 0);
@@ -312,7 +283,6 @@ function updateStudentsList() {
     showStatus("רשימת התלמידים עודכנה בזיכרון. אל תשכח ללחוץ על 'שמור שינויים ל-GitHub'!", "success");
 }
 
-// 2. שמירת הנתונים חזרה ל-GitHub API (Commit אוטומטי)
 async function saveDataToGitHub() {
     const token = localStorage.getItem("github_token");
     if (!token) {
@@ -321,7 +291,6 @@ async function saveDataToGitHub() {
         return;
     }
 
-    // שמירה סופית של מצב הטבלה הנוכחי לזיכרון
     saveTableToMemory();
 
     try {
@@ -329,7 +298,6 @@ async function saveDataToGitHub() {
 
         const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
 
-        // א. שליפת ה-SHA העדכני של הקובץ (חובה בשביל לבצע Commit ב-GitHub API)
         const getRes = await fetch(apiUrl, {
             headers: { 'Accept': 'application/vnd.github.v3+json' }
         });
@@ -341,11 +309,9 @@ async function saveDataToGitHub() {
         const fileInfo = await getRes.json();
         const fileSha = fileInfo.sha;
 
-        // ב. הכנת תוכן הקובץ המעודכן בקידוד Base64 (תמיכה מלאה בתווים עבריים)
         const jsonString = JSON.stringify(appData, null, 2);
         const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
 
-        // ג. שליחת בקשת PUT לעדכון הקובץ ויצירת Commit
         const putRes = await fetch(apiUrl, {
             method: 'PUT',
             headers: {
