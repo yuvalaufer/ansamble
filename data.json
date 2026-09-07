@@ -1,6 +1,7 @@
 {
   "settings": {
-    "monthly_fee": 330
+    "monthly_fee": 330,
+    "trial_fee": 50
   },
   "students": [
     "אנה ברודי",
@@ -13,6 +14,7 @@
     "ענבל יניב",
     "שיר שטיין"
   ],
+  "trial_students": {},
   "payments": {
     "ספטמבר 2026": {
       "אנה ברודי": {
