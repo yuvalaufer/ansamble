@@ -18,13 +18,10 @@ window.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("github-token-input").value = savedToken;
     }
 
-    // הגדרת תוכן תפריטי הוספת חודש חדש (חודשים + שנים 2026 עד 5 שנים קדימה)
     populateAddMonthDropdowns();
-
     await loadDataFromGitHub();
 });
 
-// מילוי רשימות הגלילה להוספת חודש ושנה
 function populateAddMonthDropdowns() {
     const monthSelect = document.getElementById("new-month-name");
     const yearSelect = document.getElementById("new-month-year");
@@ -47,7 +44,6 @@ function populateAddMonthDropdowns() {
         yearSelect.appendChild(opt);
     }
 
-    // ברירת מחדל לחודש הנוכחי
     const today = new Date();
     monthSelect.value = MONTH_NAMES[today.getMonth()];
     yearSelect.value = today.getFullYear();
@@ -100,6 +96,7 @@ async function loadDataFromGitHub() {
 
         const fileData = await response.json();
         
+        // פענוח מדויק ותומך עברית של Base64
         const binaryString = atob(fileData.content.replace(/\s/g, ''));
         const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
         const decodedContent = new TextDecoder('utf-8').decode(bytes);
@@ -120,16 +117,13 @@ function initAppUI() {
     setupMonthsDropdown();
 }
 
-// קבלת סכום חודשי אפקטיבי לחודש נתון (תומך בירושה מחודשים קודמים או ברירת מחדל)
 function getMonthlyFeeForMonth(monthStr) {
     if (!appData) return 330;
     
-    // בדיקה האם יש מחירון ספציפי ששמור לחודש הזה
     if (appData.monthly_fees && appData.monthly_fees[monthStr] !== undefined) {
         return appData.monthly_fees[monthStr];
     }
     
-    // אם אין, נמצא את הסכום האחרון שהוגדר בחודשים שקדמו לחודש זה
     const allMonths = getAllSortedMonths();
     const currentIndex = allMonths.indexOf(monthStr);
     
@@ -142,11 +136,9 @@ function getMonthlyFeeForMonth(monthStr) {
         }
     }
     
-    // ברירת מחדל כללית מתוך settings או 330
     return (appData.settings && appData.settings.monthly_fee) ? appData.settings.monthly_fee : 330;
 }
 
-// עדכון סכום חודשי עבור החודש הנבחר והלאה
 function updateMonthlyFee(newVal) {
     const fee = parseInt(newVal) || 0;
     if (!appData.monthly_fees) {
@@ -206,7 +198,6 @@ function changeMonth() {
     renderTable();
 }
 
-// הוספת חודש חדש מתוך תפריטי הגלילה העליונים
 function addNewMonthFromDropdown() {
     const mName = document.getElementById("new-month-name").value;
     const yName = document.getElementById("new-month-year").value;
@@ -222,6 +213,13 @@ function addNewMonthFromDropdown() {
     currentMonth = monthName;
     renderTable();
     showStatus(`נוסף חודש חדש: ${monthName}`, "success");
+}
+
+// פונקציה לעדכון צבע הרקע של השורה לפי הסטטוס
+function getRowBgClass(status) {
+    if (status === "שולם") return "bg-emerald-50/80 hover:bg-emerald-100/60";
+    if (status === "שולם חלקי") return "bg-amber-50/80 hover:bg-amber-100/60";
+    return "bg-rose-50/80 hover:bg-rose-100/60"; // לא שולם
 }
 
 function renderTable() {
@@ -258,13 +256,13 @@ function renderTable() {
         totalCollected += paidAmount;
 
         const tr = document.createElement("tr");
-        tr.className = "border-b border-sky-50 hover:bg-sky-50/40 transition";
+        tr.className = `border-b border-slate-100 transition ${getRowBgClass(status)}`;
         tr.dataset.student = student;
 
         tr.innerHTML = `
             <td class="py-3 px-4 font-medium text-slate-900">${student}</td>
             <td class="py-3 px-4">
-                <select onchange="handleStatusChange(this)" class="status-select border border-slate-200 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm">
+                <select onchange="handleStatusChange(this)" class="status-select border border-slate-200 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium">
                     <option value="לא שולם" ${status === "לא שולם" ? "selected" : ""}>לא שולם</option>
                     <option value="שולם" ${status === "שולם" ? "selected" : ""}>שולם</option>
                     <option value="שולם חלקי" ${status === "שולם חלקי" ? "selected" : ""}>שולם חלקי</option>
@@ -272,10 +270,10 @@ function renderTable() {
             </td>
             <td class="py-3 px-4">
                 <input type="number" value="${paidAmount}" ${status !== "שולם חלקי" ? "disabled" : ""} 
-                    class="paid-input w-24 border border-slate-200 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm disabled:bg-slate-100 disabled:text-slate-400" 
+                    class="paid-input w-24 border border-slate-200 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm disabled:bg-slate-100/70 disabled:text-slate-400 font-medium" 
                     oninput="calculateTotals()">
             </td>
-            <td class="py-3 px-4 font-semibold remaining-cell ${remaining > 0 ? 'text-amber-600' : 'text-emerald-600'}">
+            <td class="py-3 px-4 font-semibold remaining-cell ${remaining > 0 ? 'text-amber-700' : 'text-emerald-700'}">
                 ${remaining} ₪
             </td>
         `;
@@ -290,6 +288,9 @@ function handleStatusChange(selectEl) {
     const status = selectEl.value;
     const paidInput = row.querySelector(".paid-input");
     const monthlyFee = getMonthlyFeeForMonth(currentMonth);
+
+    // עדכון מיידי של צבע רקע השורה בהתאם לסטטוס הנבחר
+    row.className = `border-b border-slate-100 transition ${getRowBgClass(status)}`;
 
     if (status === "שולם") {
         paidInput.value = monthlyFee;
@@ -331,7 +332,7 @@ function calculateTotals() {
 
         totalCollected += paidAmount;
         remainingCell.textContent = `${remaining} ₪`;
-        remainingCell.className = `py-3 px-4 font-semibold remaining-cell ${remaining > 0 ? 'text-amber-600' : 'text-emerald-600'}`;
+        remainingCell.className = `py-3 px-4 font-semibold remaining-cell ${remaining > 0 ? 'text-amber-700' : 'text-emerald-700'}`;
     });
 
     document.getElementById("total-collected").textContent = `${totalCollected} ₪`;
@@ -361,7 +362,7 @@ function updateStudentsList() {
     
     appData.students = newStudents;
     renderTable();
-    showStatus("רשימת התלמידים עודכנה בזיכרון. אל תשכח ללחוץ על 'שמור שינויים ל-GitHub'!", "success");
+    showStatus("רשימת התלמידים עודכנה בזיכרון. אל תשכח ללחוץ על 'שמור שינויים'!", "success");
 }
 
 async function saveDataToGitHub() {
@@ -391,7 +392,14 @@ async function saveDataToGitHub() {
         const fileSha = fileInfo.sha;
 
         const jsonString = JSON.stringify(appData, null, 2);
-        const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
+        
+        // המרה חסינה ובטוחה ל-UTF-8 ובסיס 64 עבור גיטהאב
+        const utf8Bytes = new TextEncoder().encode(jsonString);
+        let binaryString = "";
+        for (let i = 0; i < utf8Bytes.length; i++) {
+            binaryString += String.fromCharCode(utf8Bytes[i]);
+        }
+        const base64Content = btoa(binaryString);
 
         const putRes = await fetch(apiUrl, {
             method: 'PUT',
@@ -413,7 +421,7 @@ async function saveDataToGitHub() {
             throw new Error(errData.message || "שגיאה בשמירת הקובץ ב-GitHub");
         }
 
-        showStatus("השינויים נשמרו בהצלחה בריפו ב-GitHub! (נוצר Commit חדש)", "success");
+        showStatus("השינויים נשמרו בהצלחה בריפו ב-GitHub!", "success");
     } catch (error) {
         console.error(error);
         showStatus(`שגיאה בשמירה: ${error.message}`, "error");
