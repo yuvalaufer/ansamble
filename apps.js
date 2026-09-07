@@ -1,7 +1,7 @@
 // --- הגדרות חיבור לריפוזיטורי ב-GitHub ---
 // ⚠️ יש לעדכן כאן את שם משתמש ושל הריפוזיטורי שלך ב-GitHub!
 const GITHUB_USER = "yuvalaufer"; // שם המשתמש שלך בגיטהאב
-const GITHUB_REPO = "ensamble";   // שם הריפוזיטורי שלך
+const GITHUB_REPO = "ansamble";   // שם הריפוזיטורי שלך
 const BRANCH = "main";               // ענף ראשי (main או master)
 const FILE_PATH = "data.json";       // נתיב קובץ הנתונים בריפו
 
