@@ -96,7 +96,6 @@ async function loadDataFromGitHub() {
 
         const fileData = await response.json();
         
-        // פענוח מדויק ותומך עברית של Base64
         const binaryString = atob(fileData.content.replace(/\s/g, ''));
         const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
         const decodedContent = new TextDecoder('utf-8').decode(bytes);
@@ -139,6 +138,14 @@ function getMonthlyFeeForMonth(monthStr) {
     return (appData.settings && appData.settings.monthly_fee) ? appData.settings.monthly_fee : 330;
 }
 
+function getTrialFeeForMonth(monthStr) {
+    if (!appData) return 50;
+    if (appData.trial_fees && appData.trial_fees[monthStr] !== undefined) {
+        return appData.trial_fees[monthStr];
+    }
+    return 50;
+}
+
 function updateMonthlyFee(newVal) {
     const fee = parseInt(newVal) || 0;
     if (!appData.monthly_fees) {
@@ -149,6 +156,16 @@ function updateMonthlyFee(newVal) {
     showStatus(`הסכום החודשי עודכן ל-${fee} ₪ עבור חודש ${currentMonth} והלאה.`, "success");
 }
 
+function updateTrialFee(newVal) {
+    const fee = parseInt(newVal) || 0;
+    if (!appData.trial_fees) {
+        appData.trial_fees = {};
+    }
+    appData.trial_fees[currentMonth] = fee;
+    renderTrialTable();
+    showStatus(`סכום מפגש הניסיון עודכן ל-${fee} ₪ עבור חודש ${currentMonth}.`, "success");
+}
+
 function getAllSortedMonths() {
     const today = new Date();
     let defaultMonthStr = `${MONTH_NAMES[today.getMonth()]} ${today.getFullYear()}`;
@@ -156,6 +173,12 @@ function getAllSortedMonths() {
     let monthsSet = new Set(Object.keys(appData.payments || {}));
     if (appData.monthly_fees) {
         Object.keys(appData.monthly_fees).forEach(m => monthsSet.add(m));
+    }
+    if (appData.trial_fees) {
+        Object.keys(appData.trial_fees).forEach(m => monthsSet.add(m));
+    }
+    if (appData.trials) {
+        Object.keys(appData.trials).forEach(m => monthsSet.add(m));
     }
     monthsSet.add(defaultMonthStr);
 
@@ -215,11 +238,10 @@ function addNewMonthFromDropdown() {
     showStatus(`נוסף חודש חדש: ${monthName}`, "success");
 }
 
-// פונקציה לעדכון צבע הרקע של השורה לפי הסטטוס (גוונים ברורים, לא מסנוורים)
 function getRowBgClass(status) {
     if (status === "שולם") return "bg-emerald-200 hover:bg-emerald-300 text-emerald-950";
     if (status === "שולם חלקי") return "bg-amber-200 hover:bg-amber-300 text-amber-950";
-    return "bg-rose-200 hover:bg-rose-300 text-rose-950"; // לא שולם
+    return "bg-rose-200 hover:bg-rose-300 text-rose-950";
 }
 
 function renderTable() {
@@ -227,7 +249,8 @@ function renderTable() {
     tbody.innerHTML = "";
 
     const monthlyFee = getMonthlyFeeForMonth(currentMonth);
-    document.getElementById("monthly-fee-input").value = monthlyFee;
+    const monthlyFeeInput = document.getElementById("monthly-fee-input");
+    if (monthlyFeeInput) monthlyFeeInput.value = monthlyFee;
 
     const monthPayments = appData.payments[currentMonth] || {};
     
@@ -280,7 +303,111 @@ function renderTable() {
         tbody.appendChild(tr);
     });
 
-    document.getElementById("total-collected").textContent = `${totalCollected} ₪`;
+    const totalCollectedEl = document.getElementById("total-collected");
+    if (totalCollectedEl) totalCollectedEl.textContent = `${totalCollected} ₪`;
+
+    renderTrialTable();
+}
+
+function renderTrialTable() {
+    const tbody = document.getElementById("trial-tbody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    const trialFee = getTrialFeeForMonth(currentMonth);
+    const trialFeeInput = document.getElementById("trial-fee-input");
+    if (trialFeeInput) trialFeeInput.value = trialFee;
+
+    if (!appData.trials) appData.trials = {};
+    if (!appData.trials[currentMonth]) appData.trials[currentMonth] = {};
+
+    const monthTrials = appData.trials[currentMonth];
+
+    Object.keys(monthTrials).forEach(name => {
+        const tData = monthTrials[name];
+        const paidAmount = tData.paid_amount !== undefined ? tData.paid_amount : trialFee;
+
+        const tr = document.createElement("tr");
+        tr.className = "border-b border-slate-200 bg-sky-50/50 hover:bg-sky-100/50 transition";
+        tr.dataset.trialName = name;
+
+        tr.innerHTML = `
+            <td class="py-3 px-4 font-bold text-slate-900">${name}</td>
+            <td class="py-3 px-4">
+                <input type="number" value="${paidAmount}" 
+                    class="trial-paid-input w-24 border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium" 
+                    oninput="saveTableToMemory()">
+            </td>
+            <td class="py-3 px-4 flex gap-2">
+                <button onclick="promoteTrialToRegular('${name}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold shadow transition">
+                    צרף לתלמידים קבועים
+                </button>
+                <button onclick="removeTrialStudent('${name}')" class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold shadow transition">
+                    מחק
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function addTrialStudentPrompt() {
+    const nameInput = document.getElementById("new-trial-name");
+    if (!nameInput) return;
+    const name = nameInput.value.trim();
+    if (!name) {
+        showStatus("נא להזין שם תלמיד ניסיון", "error");
+        return;
+    }
+
+    if (!appData.trials) appData.trials = {};
+    if (!appData.trials[currentMonth]) appData.trials[currentMonth] = {};
+
+    if (appData.trials[currentMonth][name]) {
+        showStatus("תלמיד ניסיון בשם זה כבר קיים בחודש זה", "error");
+        return;
+    }
+
+    const trialFee = getTrialFeeForMonth(currentMonth);
+    appData.trials[currentMonth][name] = { paid_amount: trialFee };
+    nameInput.value = "";
+    renderTrialTable();
+    showStatus(`נוסף תלמיד ניסיון: ${name}`, "success");
+}
+
+function removeTrialStudent(name) {
+    saveTableToMemory();
+    if (appData.trials && appData.trials[currentMonth]) {
+        delete appData.trials[currentMonth][name];
+    }
+    renderTrialTable();
+    showStatus(`תלמיד הניסיון ${name} הוסר`, "success");
+}
+
+function promoteTrialToRegular(name) {
+    saveTableToMemory();
+    
+    const paidAmount = appData.trials[currentMonth][name]?.paid_amount || getTrialFeeForMonth(currentMonth);
+
+    delete appData.trials[currentMonth][name];
+
+    if (!appData.students) appData.students = [];
+    if (!appData.students.includes(name)) {
+        appData.students.push(name);
+        const textarea = document.getElementById("students-textarea");
+        if (textarea) textarea.value = appData.students.join("\n");
+    }
+
+    if (!appData.payments) appData.payments = {};
+    if (!appData.payments[currentMonth]) appData.payments[currentMonth] = {};
+    
+    appData.payments[currentMonth][name] = {
+        status: "שולם חלקי",
+        paid_amount: paidAmount
+    };
+
+    renderTable();
+    showStatus(`התלמיד ${name} צורף לתלמידים הקבועים כתשלום חלקי (${paidAmount} ₪)`, "success");
 }
 
 function handleStatusChange(selectEl) {
@@ -289,7 +416,6 @@ function handleStatusChange(selectEl) {
     const paidInput = row.querySelector(".paid-input");
     const monthlyFee = getMonthlyFeeForMonth(currentMonth);
 
-    // עדכון מיידי של צבע רקע השורה בהתאם לסטטוס הנבחר
     row.className = `border-b border-slate-300/60 transition ${getRowBgClass(status)}`;
 
     if (status === "שולם") {
@@ -335,7 +461,8 @@ function calculateTotals() {
         remainingCell.className = `py-3 px-4 font-bold remaining-cell ${remaining > 0 ? 'text-amber-950' : 'text-emerald-950'}`;
     });
 
-    document.getElementById("total-collected").textContent = `${totalCollected} ₪`;
+    const totalCollectedEl = document.getElementById("total-collected");
+    if (totalCollectedEl) totalCollectedEl.textContent = `${totalCollected} ₪`;
 }
 
 function saveTableToMemory() {
@@ -353,6 +480,16 @@ function saveTableToMemory() {
             status: status,
             paid_amount: paidAmount
         };
+    });
+
+    if (!appData.trials) appData.trials = {};
+    if (!appData.trials[currentMonth]) appData.trials[currentMonth] = {};
+    
+    const trialRows = document.querySelectorAll("#trial-tbody tr");
+    trialRows.forEach(row => {
+        const name = row.dataset.trialName;
+        const paidAmount = parseInt(row.querySelector(".trial-paid-input").value) || 0;
+        appData.trials[currentMonth][name] = { paid_amount: paidAmount };
     });
 }
 
@@ -393,7 +530,6 @@ async function saveDataToGitHub() {
 
         const jsonString = JSON.stringify(appData, null, 2);
         
-        // המרה חסינה ובטוחה ל-UTF-8 ובסיס 64 עבור גיטהאב
         const utf8Bytes = new TextEncoder().encode(jsonString);
         let binaryString = "";
         for (let i = 0; i < utf8Bytes.length; i++) {
