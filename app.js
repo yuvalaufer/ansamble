@@ -18,8 +18,40 @@ window.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("github-token-input").value = savedToken;
     }
 
+    // הגדרת תוכן תפריטי הוספת חודש חדש (חודשים + שנים 2026 עד 5 שנים קדימה)
+    populateAddMonthDropdowns();
+
     await loadDataFromGitHub();
 });
+
+// מילוי רשימות הגלילה להוספת חודש ושנה
+function populateAddMonthDropdowns() {
+    const monthSelect = document.getElementById("new-month-name");
+    const yearSelect = document.getElementById("new-month-year");
+
+    monthSelect.innerHTML = "";
+    MONTH_NAMES.forEach(m => {
+        const opt = document.createElement("option");
+        opt.value = m;
+        opt.textContent = m;
+        monthSelect.appendChild(opt);
+    });
+
+    yearSelect.innerHTML = "";
+    const currentYear = 2026;
+    for (let i = 0; i <= 5; i++) {
+        let y = currentYear + i;
+        const opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = y;
+        yearSelect.appendChild(opt);
+    }
+
+    // ברירת מחדל לחודש הנוכחי
+    const today = new Date();
+    monthSelect.value = MONTH_NAMES[today.getMonth()];
+    yearSelect.value = today.getFullYear();
+}
 
 function toggleTokenSettings() {
     const panel = document.getElementById("token-panel");
@@ -84,30 +116,71 @@ async function loadDataFromGitHub() {
 
 function initAppUI() {
     if (!appData) return;
-
-    document.getElementById("display-monthly-fee").textContent = appData.settings.monthly_fee;
     document.getElementById("students-textarea").value = (appData.students || []).join("\n");
-
     setupMonthsDropdown();
 }
 
-function setupMonthsDropdown() {
-    const select = document.getElementById("month-select");
-    select.innerHTML = "";
+// קבלת סכום חודשי אפקטיבי לחודש נתון (תומך בירושה מחודשים קודמים או ברירת מחדל)
+function getMonthlyFeeForMonth(monthStr) {
+    if (!appData) return 330;
+    
+    // בדיקה האם יש מחירון ספציפי ששמור לחודש הזה
+    if (appData.monthly_fees && appData.monthly_fees[monthStr] !== undefined) {
+        return appData.monthly_fees[monthStr];
+    }
+    
+    // אם אין, נמצא את הסכום האחרון שהוגדר בחודשים שקדמו לחודש זה
+    const allMonths = getAllSortedMonths();
+    const currentIndex = allMonths.indexOf(monthStr);
+    
+    if (currentIndex > 0) {
+        for (let i = currentIndex - 1; i >= 0; i--) {
+            let prevMonth = allMonths[i];
+            if (appData.monthly_fees && appData.monthly_fees[prevMonth] !== undefined) {
+                return appData.monthly_fees[prevMonth];
+            }
+        }
+    }
+    
+    // ברירת מחדל כללית מתוך settings או 330
+    return (appData.settings && appData.settings.monthly_fee) ? appData.settings.monthly_fee : 330;
+}
 
+// עדכון סכום חודשי עבור החודש הנבחר והלאה
+function updateMonthlyFee(newVal) {
+    const fee = parseInt(newVal) || 0;
+    if (!appData.monthly_fees) {
+        appData.monthly_fees = {};
+    }
+    appData.monthly_fees[currentMonth] = fee;
+    renderTable();
+    showStatus(`הסכום החודשי עודכן ל-${fee} ₪ עבור חודש ${currentMonth} והלאה.`, "success");
+}
+
+function getAllSortedMonths() {
     const today = new Date();
     let defaultMonthStr = `${MONTH_NAMES[today.getMonth()]} ${today.getFullYear()}`;
 
     let monthsSet = new Set(Object.keys(appData.payments || {}));
+    if (appData.monthly_fees) {
+        Object.keys(appData.monthly_fees).forEach(m => monthsSet.add(m));
+    }
     monthsSet.add(defaultMonthStr);
 
-    let sortedMonths = Array.from(monthsSet).sort((a, b) => {
+    return Array.from(monthsSet).sort((a, b) => {
         let [m1, y1] = a.split(" ");
         let [m2, y2] = b.split(" ");
         let date1 = new Date(y1, MONTH_NAMES.indexOf(m1), 1);
         let date2 = new Date(y2, MONTH_NAMES.indexOf(m2), 1);
         return date1 - date2;
     });
+}
+
+function setupMonthsDropdown() {
+    const select = document.getElementById("month-select");
+    select.innerHTML = "";
+
+    let sortedMonths = getAllSortedMonths();
 
     sortedMonths.forEach(m => {
         const opt = document.createElement("option");
@@ -115,6 +188,9 @@ function setupMonthsDropdown() {
         opt.textContent = m;
         select.appendChild(opt);
     });
+
+    const today = new Date();
+    let defaultMonthStr = `${MONTH_NAMES[today.getMonth()]} ${today.getFullYear()}`;
 
     if (!currentMonth || !sortedMonths.includes(currentMonth)) {
         currentMonth = sortedMonths.includes(defaultMonthStr) ? defaultMonthStr : sortedMonths[sortedMonths.length - 1];
@@ -130,9 +206,11 @@ function changeMonth() {
     renderTable();
 }
 
-function addNewMonth() {
-    const monthName = prompt("הכנס שם חודש ושנה (למשל: יוני 2026):");
-    if (!monthName) return;
+// הוספת חודש חדש מתוך תפריטי הגלילה העליונים
+function addNewMonthFromDropdown() {
+    const mName = document.getElementById("new-month-name").value;
+    const yName = document.getElementById("new-month-year").value;
+    const monthName = `${mName} ${yName}`;
 
     if (!appData.payments) appData.payments = {};
     if (!appData.payments[monthName]) {
@@ -143,13 +221,16 @@ function addNewMonth() {
     document.getElementById("month-select").value = monthName;
     currentMonth = monthName;
     renderTable();
+    showStatus(`נוסף חודש חדש: ${monthName}`, "success");
 }
 
 function renderTable() {
     const tbody = document.getElementById("payments-tbody");
     tbody.innerHTML = "";
 
-    const monthlyFee = appData.settings.monthly_fee;
+    const monthlyFee = getMonthlyFeeForMonth(currentMonth);
+    document.getElementById("monthly-fee-input").value = monthlyFee;
+
     const monthPayments = appData.payments[currentMonth] || {};
     
     const masterStudents = appData.students || [];
@@ -177,13 +258,13 @@ function renderTable() {
         totalCollected += paidAmount;
 
         const tr = document.createElement("tr");
-        tr.className = "border-b border-gray-100 hover:bg-gray-50/50 transition";
+        tr.className = "border-b border-sky-50 hover:bg-sky-50/40 transition";
         tr.dataset.student = student;
 
         tr.innerHTML = `
-            <td class="py-3 px-4 font-medium text-gray-900">${student}</td>
+            <td class="py-3 px-4 font-medium text-slate-900">${student}</td>
             <td class="py-3 px-4">
-                <select onchange="handleStatusChange(this)" class="status-select border border-gray-300 rounded-lg px-2.5 py-1 text-sm bg-white">
+                <select onchange="handleStatusChange(this)" class="status-select border border-slate-200 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm">
                     <option value="לא שולם" ${status === "לא שולם" ? "selected" : ""}>לא שולם</option>
                     <option value="שולם" ${status === "שולם" ? "selected" : ""}>שולם</option>
                     <option value="שולם חלקי" ${status === "שולם חלקי" ? "selected" : ""}>שולם חלקי</option>
@@ -191,7 +272,7 @@ function renderTable() {
             </td>
             <td class="py-3 px-4">
                 <input type="number" value="${paidAmount}" ${status !== "שולם חלקי" ? "disabled" : ""} 
-                    class="paid-input w-24 border border-gray-300 rounded-lg px-2.5 py-1 text-sm bg-white disabled:bg-gray-100 disabled:text-gray-400" 
+                    class="paid-input w-24 border border-slate-200 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm disabled:bg-slate-100 disabled:text-slate-400" 
                     oninput="calculateTotals()">
             </td>
             <td class="py-3 px-4 font-semibold remaining-cell ${remaining > 0 ? 'text-amber-600' : 'text-emerald-600'}">
@@ -208,7 +289,7 @@ function handleStatusChange(selectEl) {
     const row = selectEl.closest("tr");
     const status = selectEl.value;
     const paidInput = row.querySelector(".paid-input");
-    const monthlyFee = appData.settings.monthly_fee;
+    const monthlyFee = getMonthlyFeeForMonth(currentMonth);
 
     if (status === "שולם") {
         paidInput.value = monthlyFee;
@@ -228,7 +309,7 @@ function handleStatusChange(selectEl) {
 
 function calculateTotals() {
     const rows = document.querySelectorAll("#payments-tbody tr");
-    const monthlyFee = appData.settings.monthly_fee;
+    const monthlyFee = getMonthlyFeeForMonth(currentMonth);
     let totalCollected = 0;
 
     rows.forEach(row => {
