@@ -392,50 +392,78 @@ function handleTrialStatusChange(selectEl) {
 }
 
 function calculateTotals() {
-    let totalCollected = 0;
+    let grandTotalCollected = 0;
 
-    // חישוב תלמידים קבועים
+    // --- חישוב תלמידים קבועים ---
     const regularRows = document.querySelectorAll("#payments-tbody tr");
+    let regPaidTotal = 0;
+    let regPartialTotal = 0;
+    let regUnpaidTotal = 0;
+    const monthlyFee = getMonthlyFeeForMonth(currentMonth);
+
     regularRows.forEach(row => {
         const status = row.querySelector(".status-select").value;
         const paidInput = row.querySelector(".paid-input");
         const remainingCell = row.querySelector(".remaining-cell");
-        const monthlyFee = getMonthlyFeeForMonth(currentMonth);
 
         let paidAmount = parseInt(paidInput.value) || 0;
         let remaining = 0;
 
         if (status === "שולם") {
             paidAmount = monthlyFee;
+            regPaidTotal += paidAmount;
         } else if (status === "שולם חלקי") {
             remaining = Math.max(0, monthlyFee - paidAmount);
+            regPartialTotal += paidAmount;
         } else {
             paidAmount = 0;
             remaining = monthlyFee;
+            regUnpaidTotal += remaining;
         }
 
-        totalCollected += paidAmount;
+        grandTotalCollected += paidAmount;
         remainingCell.textContent = `${remaining} ₪`;
         remainingCell.className = `py-3 px-4 font-bold remaining-cell ${remaining > 0 ? 'text-amber-950' : 'text-emerald-950'}`;
     });
 
-    // חישוב תלמידי ניסיון
+    // עדכון סיכום קבועים בתחתית הטבלה
+    document.getElementById("reg-summary-paid").textContent = regPaidTotal;
+    document.getElementById("reg-summary-partial").textContent = regPartialTotal;
+    document.getElementById("reg-summary-unpaid").textContent = regUnpaidTotal;
+
+
+    // --- חישוב תלמידי ניסיון ---
     const trialRows = document.querySelectorAll("#trial-tbody tr");
+    let trialPaidTotal = 0;
+    let trialPartialTotal = 0;
+    let trialUnpaidCount = 0;
+    const trialFee = getTrialFee();
+
     trialRows.forEach(row => {
         const status = row.querySelector(".trial-status-select").value;
         const paidInput = row.querySelector(".trial-paid-input");
-        const trialFee = getTrialFee();
 
         let paidAmount = parseInt(paidInput.value) || 0;
         if (status === "שולם") {
             paidAmount = trialFee;
-        } else if (status === "לא שולם") {
+            trialPaidTotal += paidAmount;
+        } else if (status === "שולם חלקי") {
+            trialPartialTotal += paidAmount;
+        } else {
             paidAmount = 0;
+            trialUnpaidCount += 1;
         }
-        totalCollected += paidAmount;
+        grandTotalCollected += paidAmount;
     });
 
-    document.getElementById("total-collected-top").textContent = `${totalCollected} ₪`;
+    // עדכון סיכום ניסיון בתחתית הטבלה
+    document.getElementById("trial-summary-paid").textContent = trialPaidTotal;
+    document.getElementById("trial-summary-partial").textContent = trialPartialTotal;
+    document.getElementById("trial-summary-unpaid").textContent = trialUnpaidCount;
+
+
+    // --- סה"כ כללי עליון ---
+    document.getElementById("total-collected-top").textContent = `${grandTotalCollected} ₪`;
 }
 
 function saveTableToMemory() {
@@ -471,7 +499,6 @@ function saveTableToMemory() {
     });
 }
 
-// ניהול רשימת תלמידים קבועים בצורה בטוחה (אינטראקטיבית)
 function renderStudentsManagementList() {
     const container = document.getElementById("students-list-container");
     container.innerHTML = "";
@@ -533,7 +560,6 @@ function updateStudentName(index) {
 
     appData.students[index] = newName;
 
-    // עדכון גם במבנה התשלומים ההיסטורי והנוכחי כדי למנוע כפילויות שורות
     if (appData.payments) {
         Object.keys(appData.payments).forEach(month => {
             if (appData.payments[month][oldName]) {
@@ -559,7 +585,6 @@ function deleteStudent(index) {
     showStatus(`התלמיד ${name} הוסר מהרשימה.`, "success");
 }
 
-// ניהול תלמידי ניסיון
 function addTrialStudent() {
     saveTableToMemory();
     const input = document.getElementById("new-trial-name");
@@ -597,7 +622,6 @@ function removeTrialStudent(name) {
 function promoteTrialStudent(name) {
     saveTableToMemory();
     
-    // שליפת הסכום ששולם בניסיון (אם שולם מלא או חלקי)
     const trialData = appData.trial_students[currentMonth][name] || { status: "לא שולם", paid_amount: 0 };
     const trialFee = getTrialFee();
     let paidSoFar = 0;
@@ -610,12 +634,10 @@ function promoteTrialStudent(name) {
         paidSoFar = 0;
     }
 
-    // הוספה לרשימת התלמידים הקבועים אם אינו קיים בה
     if (!appData.students.includes(name)) {
         appData.students.push(name);
     }
 
-    // הוספה לטבלת התשלומים החודשית כתשלום חלקי (או מלא בהתאם לסכום הניסיון)
     if (!appData.payments[currentMonth]) {
         appData.payments[currentMonth] = {};
     }
@@ -635,7 +657,6 @@ function promoteTrialStudent(name) {
         paid_amount: paidSoFar
     };
 
-    // מחיקה מרשימת הניסיון לחודש זה
     delete appData.trial_students[currentMonth][name];
 
     renderStudentsManagementList();
