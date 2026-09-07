@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניהול תשלומים - מורים למוסיקה</title>
+    <!-- Tailwind CSS לעיצוב נקי ומהיר -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen p-4 sm:p-6">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- כותרת ראשית -->
+        <header class="flex flex-col sm:flex-row justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2 sm:mb-0">ניהול תשלומים חודשי</h1>
+            
+            <!-- הגדרות חיבור ל-GitHub -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleTokenSettings()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-lg transition">
+                    ⚙️ הגדרות גישה (Token)
+                </button>
+                <button onclick="saveDataToGitHub()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg shadow transition text-sm flex items-center gap-1.5">
+                    💾 שמור שינויים ל-GitHub
+                </button>
+            </div>
+        </header>
+
+        <!-- פאנל הגדרות טוקן (מוסתר כברירת מחדל) -->
+        <div id="token-panel" class="hidden mb-6 bg-amber-50 border border-amber-200 p-4 rounded-xl text-sm">
+            <p class="font-semibold text-amber-800 mb-1">הגדרת חיבור ל-GitHub (נדרש פעם אחת בלבד בדפדפן זה):</p>
+            <p class="text-amber-700 mb-3 text-xs">הזן Personal Access Token עם הרשאות repo כדי לאפשר שמירה אוטומטית לקובץ ה-JSON בריפו.</p>
+            <div class="flex gap-2">
+                <input type="password" id="github-token-input" placeholder="הדבק כאן GitHub Token..." class="flex-1 border border-amber-300 px-3 py-1.5 rounded-lg text-sm bg-white">
+                <button onclick="saveToken()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium">שמור טוקן</button>
+            </div>
+        </div>
+
+        <!-- הודעות מערכת -->
+        <div id="status-message" class="hidden mb-4 p-3 rounded-lg text-sm font-medium"></div>
+
+        <!-- פאנל שליטה ובחירת חודש -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <label for="month-select" class="font-medium text-sm">בחר חודש:</label>
+                <select id="month-select" onchange="changeMonth()" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:ring-2 focus:ring-indigo-500">
+                    <!-- יתמלא דינמית ב-JS -->
+                </select>
+                <button onclick="addNewMonth()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs px-3 py-2 rounded-lg font-medium transition">
+                    + הוסף חודש חדש
+                </button>
+            </div>
+            
+            <div class="text-sm font-medium text-gray-600">
+                סכום חודשי ברירת מחדל: <span id="display-monthly-fee" class="text-gray-900 font-bold">330</span> ₪
+            </div>
+        </div>
+
+        <!-- טבלת תשלומים -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+            <div class="overflow-x-auto">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 text-xs uppercase tracking-wider border-b border-gray-200">
+                            <th class="py-3 px-4 font-semibold">שם התלמיד/ה</th>
+                            <th class="py-3 px-4 font-semibold">סטטוס תשלום</th>
+                            <th class="py-3 px-4 font-semibold">סכום ששולם (₪)</th>
+                            <th class="py-3 px-4 font-semibold">יתרה לתשלום (₪)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payments-tbody" class="divide-y divide-gray-100 text-sm">
+                        <!-- יתמלא דינמית ב-JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- סיכום הכנסות לחודש -->
+            <div class="bg-gray-50 px-4 py-3 border-t border-gray-200 flex justify-between items-center text-sm font-semibold">
+                <span>סה"כ גבייה לחודש הנבחר:</span>
+                <span id="total-collected" class="text-emerald-600 text-base">0 ₪</span>
+            </div>
+        </div>
+
+        <!-- ניהול רשימת תלמידים -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <h2 class="font-bold text-gray-800 mb-2 text-base">ניהול רשימת תלמידים (שם בכל שורה)</h2>
+            <textarea id="students-textarea" rows="5" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 mb-3"></textarea>
+            <button onclick="updateStudentsList()" class="bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                עדכן רשימת תלמידים
+            </button>
+        </div>
+    </div>
+
+    <!-- טעינת קוד ה-JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
