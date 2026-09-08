@@ -101,6 +101,12 @@ async function loadDataFromGitHub() {
         if (!appData.trial_students) {
             appData.trial_students = {};
         }
+        if (!appData.mid_month_cash) {
+            appData.mid_month_cash = {};
+        }
+        if (!appData.carried_over_income) {
+            appData.carried_over_income = {};
+        }
 
         initAppUI();
         showStatus("הנתונים נטענו בהצלחה מ-GitHub!", "success");
@@ -391,8 +397,38 @@ function handleTrialStatusChange(selectEl) {
     calculateTotals();
 }
 
+// פונקציה לחישוב אוטומטי של כל הכספים שנגררו מהחודש הקודם (דמי ניסיון + תשלומי אמצע חודש)
+function getCarriedOverIncomeForMonth(monthStr) {
+    if (!appData) return 0;
+    
+    const allMonths = getAllSortedMonths();
+    const currentIndex = allMonths.indexOf(monthStr);
+    if (currentIndex <= 0) return 0;
+
+    let prevMonth = allMonths[currentIndex - 1];
+    let carriedSum = 0;
+
+    // 1. איסוף כספים מתלמידי ניסיון שנשארו בניסיון בחודש הקודם ולא המשיכו
+    let prevTrials = appData.trial_students && appData.trial_students[prevMonth] ? appData.trial_students[prevMonth] : {};
+    Object.keys(prevTrials).forEach(name => {
+        let tData = prevTrials[name];
+        if (tData.status === "שולם") {
+            carriedSum += (appData.settings.trial_fee || 50);
+        } else if (tData.status === "שולם חלקי") {
+            carriedSum += (tData.paid_amount || 0);
+        }
+    });
+
+    // 2. הוספת מזומנים שנכנסו באמצע חודש עקב מעבר מניסיון לקבוע בחודש הקודם (כולל ההשלמות שלהם)
+    if (appData.mid_month_cash && appData.mid_month_cash[prevMonth]) {
+        carriedSum += appData.mid_month_cash[prevMonth];
+    }
+
+    return carriedSum;
+}
+
 function calculateTotals() {
-    let grandTotalCollected = 0;
+    let currentMonthCollected = 0;
 
     // --- חישוב תלמידים קבועים ---
     const regularRows = document.querySelectorAll("#payments-tbody tr");
@@ -421,7 +457,7 @@ function calculateTotals() {
             regUnpaidCount += 1;
         }
 
-        grandTotalCollected += paidAmount;
+        currentMonthCollected += paidAmount;
         remainingCell.textContent = `${remaining} ₪`;
         remainingCell.className = `py-3 px-4 font-bold remaining-cell ${remaining > 0 ? 'text-amber-950' : 'text-emerald-950'}`;
     });
@@ -453,7 +489,7 @@ function calculateTotals() {
             paidAmount = 0;
             trialUnpaidCount += 1;
         }
-        grandTotalCollected += paidAmount;
+        currentMonthCollected += paidAmount;
     });
 
     // עדכון סיכום ניסיון בתחתית הטבלה
@@ -462,7 +498,15 @@ function calculateTotals() {
     document.getElementById("trial-summary-unpaid").textContent = trialUnpaidCount;
 
 
-    // --- סה"כ כללי עליון ---
+    // --- שילוב הכנסות שנגררו מחודש קודם ---
+    let carriedOver = getCarriedOverIncomeForMonth(currentMonth);
+    let grandTotalCollected = currentMonthCollected + carriedOver;
+
+    // עדכון תצוגה עליונה
+    if (document.getElementById("current-month-collected")) {
+        document.getElementById("current-month-collected").textContent = `${currentMonthCollected} ₪`;
+        document.getElementById("carried-over-display").textContent = `${carriedOver} ₪`;
+    }
     document.getElementById("total-collected-top").textContent = `${grandTotalCollected} ₪`;
 }
 
@@ -643,6 +687,11 @@ function promoteTrialStudent(name) {
         paidSoFar = 0;
     }
 
+    // שמירת כל הכסף ששולם באמצע החודש בקופת מזומני אמצע החודש כדי שייגרר לחודש הבא להתחשבנות מול השותפה
+    if (!appData.mid_month_cash) appData.mid_month_cash = {};
+    if (!appData.mid_month_cash[currentMonth]) appData.mid_month_cash[currentMonth] = 0;
+    appData.mid_month_cash[currentMonth] += paidSoFar;
+
     if (!appData.students.includes(name)) {
         appData.students.push(name);
     }
@@ -671,7 +720,7 @@ function promoteTrialStudent(name) {
     renderStudentsManagementList();
     renderTable();
     renderTrialTable();
-    showStatus(`התלמיד ${name} צורף בהצלחה לתלמידים הקבועים! (שויך סכום של ${paidSoFar} ₪)`, "success");
+    showStatus(`התלמיד ${name} צורף לקבועים. הסכום ששולם (${paidSoFar} ₪) ייגרר להתחשבנות של החודש הבא.`, "success");
 }
 
 async function saveDataToGitHub() {
