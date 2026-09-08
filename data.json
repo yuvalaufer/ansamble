@@ -67,8 +67,8 @@
         "allocation": "current"
       },
       "אסף נעים": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם חלקי",
+        "paid_amount": 190,
         "allocation": "current"
       },
       "יעל פארן": {
