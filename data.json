@@ -157,5 +157,13 @@
   },
   "monthly_fees": {
     "ספטמבר 2026": 380
+  },
+  "studio_sessions_payment": {
+    "ספטמבר 2026": [
+      { "session_number": 1, "status": "שולם" },
+      { "session_number": 2, "status": "שולם" },
+      { "session_number": 3, "status": "לא שולם" },
+      { "session_number": 4, "status": "לא שולם" }
+    ]
   }
 }
