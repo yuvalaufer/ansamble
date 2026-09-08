@@ -107,6 +107,15 @@ async function loadDataFromGitHub() {
         if (!appData.carried_over_income) {
             appData.carried_over_income = {};
         }
+        if (!appData.settings) {
+            appData.settings = {};
+        }
+        if (appData.settings.studio_rent_per_session === undefined) {
+            appData.settings.studio_rent_per_session = 168;
+        }
+        if (appData.settings.studio_sessions_count === undefined) {
+            appData.settings.studio_sessions_count = 4;
+        }
 
         initAppUI();
         showStatus("הנתונים נטענו בהצלחה מ-GitHub!", "success");
@@ -118,6 +127,8 @@ async function loadDataFromGitHub() {
 
 function initAppUI() {
     if (!appData) return;
+    document.getElementById("studio-rent-per-session-input").value = appData.settings.studio_rent_per_session;
+    document.getElementById("studio-sessions-count-input").value = appData.settings.studio_sessions_count;
     setupMonthsDropdown();
     renderStudentsManagementList();
 }
@@ -161,6 +172,18 @@ function updateTrialFee(newVal) {
     appData.settings.trial_fee = fee;
     renderTrialTable();
     showStatus(`עלות מפגש ניסיון עודכנה ל-${fee} ₪.`, "success");
+}
+
+function updateStudioRentSettings() {
+    const rentPerSession = parseInt(document.getElementById("studio-rent-per-session-input").value) || 0;
+    const sessionsCount = parseInt(document.getElementById("studio-sessions-count-input").value) || 0;
+    
+    if (!appData.settings) appData.settings = {};
+    appData.settings.studio_rent_per_session = rentPerSession;
+    appData.settings.studio_sessions_count = sessionsCount;
+
+    calculateTotals();
+    showStatus("הגדרות השכירות לסטודיו עודכנו בהצלחה.", "success");
 }
 
 function getAllSortedMonths() {
@@ -250,9 +273,10 @@ function renderTable() {
     const allStudents = Array.from(new Set([...masterStudents, ...pastStudents]));
 
     allStudents.forEach(student => {
-        const pData = monthPayments[student] || { status: "לא שולם", paid_amount: 0 };
+        const pData = monthPayments[student] || { status: "לא שולם", paid_amount: 0, allocation: "current" };
         const status = pData.status;
         let paidAmount = pData.paid_amount;
+        const allocation = pData.allocation || "current";
 
         let remaining = 0;
         if (status === "שולם") {
@@ -283,6 +307,12 @@ function renderTable() {
                     class="paid-input w-24 border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm disabled:bg-slate-100 disabled:text-slate-500 font-medium" 
                     oninput="calculateTotals()">
             </td>
+            <td class="py-3 px-4">
+                <select class="allocation-select border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium" onchange="calculateTotals()">
+                    <option value="current" ${allocation === "current" ? "selected" : ""}>תשלום לחודש זה</option>
+                    <option value="carried" ${allocation === "carried" ? "selected" : ""}>נגרר לחודש הבא</option>
+                </select>
+            </td>
             <td class="py-3 px-4 font-bold remaining-cell ${remaining > 0 ? 'text-amber-950' : 'text-emerald-950'}">
                 ${remaining} ₪
             </td>
@@ -309,6 +339,7 @@ function renderTrialTable() {
         const tData = monthTrials[name];
         const status = tData.status;
         let paidAmount = tData.paid_amount;
+        const allocation = tData.allocation || "current";
 
         if (status === "שולם") paidAmount = trialFee;
         else if (status === "לא שולם") paidAmount = 0;
@@ -333,6 +364,12 @@ function renderTrialTable() {
                 <input type="number" value="${paidAmount}" ${status !== "שולם חלקי" ? "disabled" : ""} 
                     class="trial-paid-input w-24 border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm disabled:bg-slate-100 disabled:text-slate-500 font-medium" 
                     oninput="calculateTotals()">
+            </td>
+            <td class="py-3 px-4">
+                <select class="trial-allocation-select border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium" onchange="calculateTotals()">
+                    <option value="current" ${allocation === "current" ? "selected" : ""}>תשלום לחודש זה</option>
+                    <option value="carried" ${allocation === "carried" ? "selected" : ""}>נגרר לחודש הבא</option>
+                </select>
             </td>
             <td class="py-3 px-4 flex items-center gap-2">
                 <button onclick="promoteTrialStudent('${name}')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition">
@@ -397,7 +434,7 @@ function handleTrialStatusChange(selectEl) {
     calculateTotals();
 }
 
-// פונקציה לחישוב אוטומטי של כל הכספים שנגררו מהחודש הקודם (דמי ניסיון + תשלומי אמצע חודש)
+// פונקציה לחישוב הכספים שנגררו מחודש קודם (כולל בחירה ידנית "נגרר לחודש הבא" ושאר מנגנונים קודמים)
 function getCarriedOverIncomeForMonth(monthStr) {
     if (!appData) return 0;
     
@@ -408,18 +445,40 @@ function getCarriedOverIncomeForMonth(monthStr) {
     let prevMonth = allMonths[currentIndex - 1];
     let carriedSum = 0;
 
-    // 1. איסוף כספים מתלמידי ניסיון שנשארו בניסיון בחודש הקודם ולא המשיכו
-    let prevTrials = appData.trial_students && appData.trial_students[prevMonth] ? appData.trial_students[prevMonth] : {};
-    Object.keys(prevTrials).forEach(name => {
-        let tData = prevTrials[name];
-        if (tData.status === "שולם") {
-            carriedSum += (appData.settings.trial_fee || 50);
-        } else if (tData.status === "שולם חלקי") {
-            carriedSum += (tData.paid_amount || 0);
+    // 1. בדיקת תשלומים קבועים בחודש הקודם שסומנו כגרירה לחודש הבא
+    let prevPayments = appData.payments && appData.payments[prevMonth] ? appData.payments[prevMonth] : {};
+    Object.keys(prevPayments).forEach(name => {
+        let pData = prevPayments[name];
+        if (pData.allocation === "carried") {
+            if (pData.status === "שולם") {
+                carriedSum += getMonthlyFeeForMonth(prevMonth);
+            } else if (pData.status === "שולם חלקי") {
+                carriedSum += (pData.paid_amount || 0);
+            }
         }
     });
 
-    // 2. הוספת מזומנים שנכנסו באמצע חודש עקב מעבר מניסיון לקבוע בחודש הקודם (כולל ההשלמות שלהם)
+    // 2. בדיקת תלמידי ניסיון בחודש הקודם שסומנו כגרירה לחודש הבא
+    let prevTrials = appData.trial_students && appData.trial_students[prevMonth] ? appData.trial_students[prevMonth] : {};
+    Object.keys(prevTrials).forEach(name => {
+        let tData = prevTrials[name];
+        if (tData.allocation === "carried") {
+            if (tData.status === "שולם") {
+                carriedSum += getTrialFee();
+            } else if (tData.status === "שולם חלקי") {
+                carriedSum += (tData.paid_amount || 0);
+            }
+        } else if (!tData.allocation || tData.allocation === "current") {
+            // התנהגות קודמת: תלמידי ניסיון שלא המשיכו נגררים אוטומטית
+            if (tData.status === "שולם") {
+                carriedSum += getTrialFee();
+            } else if (tData.status === "שולם חלקי") {
+                carriedSum += (tData.paid_amount || 0);
+            }
+        }
+    });
+
+    // 3. הוספת מזומנים שנכנסו באמצע חודש עקב מעבר מניסיון לקבוע בחודש הקודם
     if (appData.mid_month_cash && appData.mid_month_cash[prevMonth]) {
         carriedSum += appData.mid_month_cash[prevMonth];
     }
@@ -440,6 +499,7 @@ function calculateTotals() {
     regularRows.forEach(row => {
         const status = row.querySelector(".status-select").value;
         const paidInput = row.querySelector(".paid-input");
+        const allocation = row.querySelector(".allocation-select").value;
         const remainingCell = row.querySelector(".remaining-cell");
 
         let paidAmount = parseInt(paidInput.value) || 0;
@@ -457,7 +517,11 @@ function calculateTotals() {
             regUnpaidCount += 1;
         }
 
-        currentMonthCollected += paidAmount;
+        // אם התשלום שייך לחודש הנוכחי הוא נכנס לסכום השוטף. אם הוגדר כנגרר לחודש הבא - אינו נכלל בחודש הנוכחי.
+        if (allocation === "current") {
+            currentMonthCollected += paidAmount;
+        }
+
         remainingCell.textContent = `${remaining} ₪`;
         remainingCell.className = `py-3 px-4 font-bold remaining-cell ${remaining > 0 ? 'text-amber-950' : 'text-emerald-950'}`;
     });
@@ -478,6 +542,7 @@ function calculateTotals() {
     trialRows.forEach(row => {
         const status = row.querySelector(".trial-status-select").value;
         const paidInput = row.querySelector(".trial-paid-input");
+        const allocation = row.querySelector(".trial-allocation-select").value;
 
         let paidAmount = parseInt(paidInput.value) || 0;
         if (status === "שולם") {
@@ -489,7 +554,10 @@ function calculateTotals() {
             paidAmount = 0;
             trialUnpaidCount += 1;
         }
-        currentMonthCollected += paidAmount;
+
+        if (allocation === "current") {
+            currentMonthCollected += paidAmount;
+        }
     });
 
     // עדכון סיכום ניסיון בתחתית הטבלה
@@ -500,12 +568,20 @@ function calculateTotals() {
 
     // --- שילוב הכנסות שנגררו מחודש קודם ---
     let carriedOver = getCarriedOverIncomeForMonth(currentMonth);
-    let grandTotalCollected = currentMonthCollected + carriedOver;
+    let totalIncomeBeforeRent = currentMonthCollected + carriedOver;
+
+    // --- חישוב והפחתת שכירות לסטודיו ---
+    const rentPerSession = appData.settings?.studio_rent_per_session ?? 168;
+    const sessionsCount = appData.settings?.studio_sessions_count ?? 4;
+    const totalStudioRent = rentPerSession * sessionsCount;
+
+    let grandTotalCollected = totalIncomeBeforeRent - totalStudioRent;
 
     // עדכון תצוגה עליונה
     if (document.getElementById("current-month-collected")) {
         document.getElementById("current-month-collected").textContent = `${currentMonthCollected} ₪`;
         document.getElementById("carried-over-display").textContent = `${carriedOver} ₪`;
+        document.getElementById("studio-rent-display").textContent = `-${totalStudioRent} ₪ (${rentPerSession} × ${sessionsCount})`;
     }
     document.getElementById("total-collected-top").textContent = `${grandTotalCollected} ₪`;
 }
@@ -520,10 +596,12 @@ function saveTableToMemory() {
         const student = row.dataset.student;
         const status = row.querySelector(".status-select").value;
         const paidAmount = parseInt(row.querySelector(".paid-input").value) || 0;
+        const allocation = row.querySelector(".allocation-select").value;
 
         appData.payments[currentMonth][student] = {
             status: status,
-            paid_amount: paidAmount
+            paid_amount: paidAmount,
+            allocation: allocation
         };
     });
 
@@ -535,10 +613,12 @@ function saveTableToMemory() {
         const name = row.dataset.trialName;
         const status = row.querySelector(".trial-status-select").value;
         const paidAmount = parseInt(row.querySelector(".trial-paid-input").value) || 0;
+        const allocation = row.querySelector(".trial-allocation-select").value;
 
         appData.trial_students[currentMonth][name] = {
             status: status,
-            paid_amount: paidAmount
+            paid_amount: paidAmount,
+            allocation: allocation
         };
     });
 }
@@ -655,7 +735,8 @@ function addTrialStudent() {
 
     appData.trial_students[currentMonth][name] = {
         status: "לא שולם",
-        paid_amount: 0
+        paid_amount: 0,
+        allocation: "current"
     };
 
     input.value = "";
@@ -675,7 +756,7 @@ function removeTrialStudent(name) {
 function promoteTrialStudent(name) {
     saveTableToMemory();
     
-    const trialData = appData.trial_students[currentMonth][name] || { status: "לא שולם", paid_amount: 0 };
+    const trialData = appData.trial_students[currentMonth][name] || { status: "לא שולם", paid_amount: 0, allocation: "current" };
     const trialFee = getTrialFee();
     let paidSoFar = 0;
 
@@ -712,7 +793,8 @@ function promoteTrialStudent(name) {
 
     appData.payments[currentMonth][name] = {
         status: initialStatus,
-        paid_amount: paidSoFar
+        paid_amount: paidSoFar,
+        allocation: "current"
     };
 
     delete appData.trial_students[currentMonth][name];
