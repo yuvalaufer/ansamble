@@ -1,7 +1,9 @@
 {
   "settings": {
     "monthly_fee": 330,
-    "trial_fee": 50
+    "trial_fee": 50,
+    "studio_rent_per_session": 168,
+    "studio_sessions_count": 4
   },
   "carried_over_income": {
     "ספטמבר 2026": 0,
@@ -26,27 +28,33 @@
     "ספטמבר 2026": {
       "דרור": {
         "status": "שולם",
-        "paid_amount": 50
+        "paid_amount": 50,
+        "allocation": "current"
       },
       "מירב שפר": {
         "status": "שולם",
-        "paid_amount": 50
+        "paid_amount": 50,
+        "allocation": "current"
       },
       "אילן רובין": {
         "status": "שולם",
-        "paid_amount": 50
+        "paid_amount": 50,
+        "allocation": "current"
       },
       "טלי רובין": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "דנה רובין": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "שרון 0538230990": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       }
     },
     "אוקטובר 2026": {}
@@ -55,77 +63,95 @@
     "ספטמבר 2026": {
       "אנה ברודי": {
         "status": "שולם",
-        "paid_amount": 380
+        "paid_amount": 380,
+        "allocation": "current"
       },
       "אסף נעים": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "יעל פארן": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "ליאה שחרור וייס": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "מיכל": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "ענבל יניב": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "שיר שטיין": {
         "status": "שולם",
-        "paid_amount": 380
+        "paid_amount": 380,
+        "allocation": "current"
       },
       "הדס יריב": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "נטע בן יצחק": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       }
     },
     "אוקטובר 2026": {
       "אנה ברודי": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "אסף נעים": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "הדס יריב": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "יעל פארן": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "ליאה שחרור וייס": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "מיכל": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "נטע בן יצחק": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "ענבל יניב": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       },
       "שיר שטיין": {
         "status": "לא שולם",
-        "paid_amount": 0
+        "paid_amount": 0,
+        "allocation": "current"
       }
     }
   },
