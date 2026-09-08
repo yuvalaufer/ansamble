@@ -65,22 +65,33 @@
             </div>
 
             <!-- הגדרות שכירות לסטודיו -->
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm">
-                <div class="font-bold text-slate-700">חישוב שכירות לסטודיו:</div>
-                <div class="flex items-center gap-4 flex-wrap">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs text-slate-600">שכירות למפגש:</span>
-                        <input type="number" id="studio-rent-per-session-input" onchange="updateStudioRentSettings()" class="w-20 border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white font-bold text-center">
-                        <span class="text-xs text-slate-600">₪</span>
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col gap-3 text-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="font-bold text-slate-700">חישוב שכירות לסטודיו:</div>
+                    <div class="flex items-center gap-4 flex-wrap">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-slate-600">שכירות למפגש:</span>
+                            <input type="number" id="studio-rent-per-session-input" onchange="updateStudioRentSettings()" class="w-20 border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white font-bold text-center">
+                            <span class="text-xs text-slate-600">₪</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-slate-600">כמות מפגשים בחודש:</span>
+                            <input type="number" id="studio-sessions-count-input" onchange="updateStudioRentSettings()" class="w-16 border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white font-bold text-center">
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs text-slate-600">כמות מפגשים בחודש:</span>
-                        <input type="number" id="studio-sessions-count-input" onchange="updateStudioRentSettings()" class="w-16 border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white font-bold text-center">
+                </div>
+
+                <!-- מעקב מפגשים פרטני ויתרה לתשלום -->
+                <div class="border-t border-slate-200 pt-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div class="text-xs font-bold text-slate-700">מעקב תשלום מפגשים לסטודיו:</div>
+                    <div id="studio-sessions-checkboxes" class="flex items-center gap-3 flex-wrap"></div>
+                    <div class="text-xs font-bold bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg text-amber-900">
+                        נותר לתשלום לסטודיו: <span id="studio-remaining-display" class="font-extrabold">0 ₪</span>
                     </div>
                 </div>
             </div>
 
-            <!-- סה"כ תשלומים מתחת לבחירת החודש (כולל פירוט גרירה ושכירות) -->
+            <!-- סה"כ תשלומים מתחת לבחירת החודש -->
             <div class="bg-sky-50/70 p-4 rounded-xl border border-sky-200 flex flex-col gap-2 text-sm font-bold text-slate-700">
                 <div class="flex justify-between items-center">
                     <span>הכנסות שוטפות מהחודש:</span>
@@ -95,7 +106,7 @@
                     <span id="studio-rent-display" class="font-extrabold">0 ₪</span>
                 </div>
                 <div class="flex justify-between items-center border-t border-sky-200 pt-2 text-base">
-                    <span class="text-slate-900">סה"כ הכנסות כולל לחלוקה מול השותפה (לאחר ניכוי שכירות):</span>
+                    <span class="text-slate-900">סך ההכנסות הכולל לחודש זה:</span>
                     <span id="total-collected-top" class="text-emerald-700 text-xl font-extrabold">0 ₪</span>
                 </div>
             </div>
