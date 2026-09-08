@@ -64,10 +64,20 @@
                 </div>
             </div>
 
-            <!-- סה"כ תשלומים מתחת לבחירת החודש -->
-            <div class="bg-sky-50/70 px-4 py-3 rounded-xl border border-sky-200 flex justify-between items-center text-sm font-bold text-slate-700">
-                <span>סה"כ תשלומים שהתקבלו לחודש זה:</span>
-                <span id="total-collected-top" class="text-emerald-700 text-lg font-extrabold">0 ₪</span>
+            <!-- סה"כ תשלומים מתחת לבחירת החודש (כולל פירוט גרירה) -->
+            <div class="bg-sky-50/70 px-4 py-3 rounded-xl border border-sky-200 flex flex-col gap-2 text-sm font-bold text-slate-700">
+                <div class="flex justify-between items-center">
+                    <span>הכנסות שוטפות מהחודש:</span>
+                    <span id="current-month-collected" class="text-sky-800 text-base font-extrabold">0 ₪</span>
+                </div>
+                <div class="flex justify-between items-center text-xs text-slate-600 border-t border-sky-200/60 pt-2">
+                    <span>+ תוספת הכנסות ניסיון/אמצע חודש שנגררו מחודש קודם:</span>
+                    <span id="carried-over-display" class="text-indigo-700 font-extrabold">0 ₪</span>
+                </div>
+                <div class="flex justify-between items-center border-t border-sky-200 pt-2 text-base">
+                    <span class="text-slate-900">סה"כ הכנסות כולל לחלוקה מול השותפה:</span>
+                    <span id="total-collected-top" class="text-emerald-700 text-xl font-extrabold">0 ₪</span>
+                </div>
             </div>
         </div>
 
