@@ -98,18 +98,12 @@ async function loadDataFromGitHub() {
         
         appData = JSON.parse(decodedContent);
 
-        if (!appData.trial_students) {
-            appData.trial_students = {};
-        }
-        if (!appData.mid_month_cash) {
-            appData.mid_month_cash = {};
-        }
-        if (!appData.carried_over_income) {
-            appData.carried_over_income = {};
-        }
-        if (!appData.settings) {
-            appData.settings = {};
-        }
+        if (!appData.trial_students) appData.trial_students = {};
+        if (!appData.mid_month_cash) appData.mid_month_cash = {};
+        if (!appData.carried_over_income) appData.carried_over_income = {};
+        if (!appData.settings) appData.settings = {};
+        if (!appData.studio_sessions_payment) appData.studio_sessions_payment = {};
+        
         if (appData.settings.studio_rent_per_session === undefined) {
             appData.settings.studio_rent_per_session = 168;
         }
@@ -182,8 +176,69 @@ function updateStudioRentSettings() {
     appData.settings.studio_rent_per_session = rentPerSession;
     appData.settings.studio_sessions_count = sessionsCount;
 
+    ensureStudioSessionsArray();
+    renderStudioSessionsCheckboxes();
     calculateTotals();
     showStatus("הגדרות השכירות לסטודיו עודכנו בהצלחה.", "success");
+}
+
+function ensureStudioSessionsArray() {
+    if (!appData.studio_sessions_payment) appData.studio_sessions_payment = {};
+    if (!appData.studio_sessions_payment[currentMonth]) {
+        appData.studio_sessions_payment[currentMonth] = [];
+        const count = appData.settings.studio_sessions_count || 4;
+        for (let i = 1; i <= count; i++) {
+            appData.studio_sessions_payment[currentMonth].push({ session_number: i, status: "לא שולם" });
+        }
+    } else {
+        const count = appData.settings.studio_sessions_count || 4;
+        let currentArr = appData.studio_sessions_payment[currentMonth];
+        if (currentArr.length < count) {
+            for (let i = currentArr.length + 1; i <= count; i++) {
+                currentArr.push({ session_number: i, status: "לא שולם" });
+            }
+        } else if (currentArr.length > count) {
+            appData.studio_sessions_payment[currentMonth] = currentArr.slice(0, count);
+        }
+    }
+}
+
+function renderStudioSessionsCheckboxes() {
+    ensureStudioSessionsArray();
+    const container = document.getElementById("studio-sessions-checkboxes");
+    container.innerHTML = "";
+
+    const sessions = appData.studio_sessions_payment[currentMonth];
+    sessions.forEach((session, index) => {
+        const isPaid = session.status === "שולם";
+        const label = document.createElement("label");
+        label.className = `flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold cursor-pointer transition ${isPaid ? 'bg-emerald-100 border-emerald-300 text-emerald-900' : 'bg-white border-slate-300 text-slate-700'}`;
+        label.innerHTML = `
+            <input type="checkbox" ${isPaid ? 'checked' : ''} onchange="toggleStudioSessionStatus(${index})" class="rounded text-emerald-600 focus:ring-emerald-500">
+            <span>מפגש ${session.session_number}</span>
+        `;
+        container.appendChild(label);
+    });
+}
+
+function toggleStudioSessionStatus(index) {
+    saveStudioSessionsFromUI();
+    const sessions = appData.studio_sessions_payment[currentMonth];
+    sessions[index].status = sessions[index].status === "שולם" ? "לא שולם" : "שולם";
+    renderStudioSessionsCheckboxes();
+    calculateTotals();
+}
+
+function saveStudioSessionsFromUI() {
+    const container = document.getElementById("studio-sessions-checkboxes");
+    const checkboxes = container.querySelectorAll("input[type='checkbox']");
+    if (!appData.studio_sessions_payment[currentMonth]) return;
+    
+    checkboxes.forEach((cb, index) => {
+        if (appData.studio_sessions_payment[currentMonth][index]) {
+            appData.studio_sessions_payment[currentMonth][index].status = cb.checked ? "שולם" : "לא שולם";
+        }
+    });
 }
 
 function getAllSortedMonths() {
@@ -193,6 +248,9 @@ function getAllSortedMonths() {
     let monthsSet = new Set(Object.keys(appData.payments || {}));
     if (appData.monthly_fees) {
         Object.keys(appData.monthly_fees).forEach(m => monthsSet.add(m));
+    }
+    if (appData.studio_sessions_payment) {
+        Object.keys(appData.studio_sessions_payment).forEach(m => monthsSet.add(m));
     }
     monthsSet.add(defaultMonthStr);
 
@@ -227,6 +285,8 @@ function setupMonthsDropdown() {
 
     renderTable();
     renderTrialTable();
+    renderStudioSessionsCheckboxes();
+    calculateTotals();
 }
 
 function changeMonth() {
@@ -234,6 +294,8 @@ function changeMonth() {
     currentMonth = document.getElementById("month-select").value;
     renderTable();
     renderTrialTable();
+    renderStudioSessionsCheckboxes();
+    calculateTotals();
 }
 
 function addNewMonthFromDropdown() {
@@ -251,6 +313,8 @@ function addNewMonthFromDropdown() {
     currentMonth = monthName;
     renderTable();
     renderTrialTable();
+    renderStudioSessionsCheckboxes();
+    calculateTotals();
     showStatus(`נוסף חודש חדש: ${monthName}`, "success");
 }
 
@@ -434,7 +498,6 @@ function handleTrialStatusChange(selectEl) {
     calculateTotals();
 }
 
-// פונקציה לחישוב הכספים שנגררו מחודש קודם (כולל בחירה ידנית "נגרר לחודש הבא" ושאר מנגנונים קודמים)
 function getCarriedOverIncomeForMonth(monthStr) {
     if (!appData) return 0;
     
@@ -445,7 +508,6 @@ function getCarriedOverIncomeForMonth(monthStr) {
     let prevMonth = allMonths[currentIndex - 1];
     let carriedSum = 0;
 
-    // 1. בדיקת תשלומים קבועים בחודש הקודם שסומנו כגרירה לחודש הבא
     let prevPayments = appData.payments && appData.payments[prevMonth] ? appData.payments[prevMonth] : {};
     Object.keys(prevPayments).forEach(name => {
         let pData = prevPayments[name];
@@ -458,7 +520,6 @@ function getCarriedOverIncomeForMonth(monthStr) {
         }
     });
 
-    // 2. בדיקת תלמידי ניסיון בחודש הקודם שסומנו כגרירה לחודש הבא
     let prevTrials = appData.trial_students && appData.trial_students[prevMonth] ? appData.trial_students[prevMonth] : {};
     Object.keys(prevTrials).forEach(name => {
         let tData = prevTrials[name];
@@ -469,7 +530,6 @@ function getCarriedOverIncomeForMonth(monthStr) {
                 carriedSum += (tData.paid_amount || 0);
             }
         } else if (!tData.allocation || tData.allocation === "current") {
-            // התנהגות קודמת: תלמידי ניסיון שלא המשיכו נגררים אוטומטית
             if (tData.status === "שולם") {
                 carriedSum += getTrialFee();
             } else if (tData.status === "שולם חלקי") {
@@ -478,7 +538,6 @@ function getCarriedOverIncomeForMonth(monthStr) {
         }
     });
 
-    // 3. הוספת מזומנים שנכנסו באמצע חודש עקב מעבר מניסיון לקבוע בחודש הקודם
     if (appData.mid_month_cash && appData.mid_month_cash[prevMonth]) {
         carriedSum += appData.mid_month_cash[prevMonth];
     }
@@ -489,7 +548,6 @@ function getCarriedOverIncomeForMonth(monthStr) {
 function calculateTotals() {
     let currentMonthCollected = 0;
 
-    // --- חישוב תלמידים קבועים ---
     const regularRows = document.querySelectorAll("#payments-tbody tr");
     let regPaidTotal = 0;
     let regPartialTotal = 0;
@@ -517,7 +575,6 @@ function calculateTotals() {
             regUnpaidCount += 1;
         }
 
-        // אם התשלום שייך לחודש הנוכחי הוא נכנס לסכום השוטף. אם הוגדר כנגרר לחודש הבא - אינו נכלל בחודש הנוכחי.
         if (allocation === "current") {
             currentMonthCollected += paidAmount;
         }
@@ -526,13 +583,10 @@ function calculateTotals() {
         remainingCell.className = `py-3 px-4 font-bold remaining-cell ${remaining > 0 ? 'text-amber-950' : 'text-emerald-950'}`;
     });
 
-    // עדכון סיכום קבועים בתחתית הטבלה
     document.getElementById("reg-summary-paid").textContent = regPaidTotal;
     document.getElementById("reg-summary-partial").textContent = regPartialTotal;
     document.getElementById("reg-summary-unpaid").textContent = regUnpaidCount;
 
-
-    // --- חישוב תלמידי ניסיון ---
     const trialRows = document.querySelectorAll("#trial-tbody tr");
     let trialPaidTotal = 0;
     let trialPartialTotal = 0;
@@ -560,28 +614,34 @@ function calculateTotals() {
         }
     });
 
-    // עדכון סיכום ניסיון בתחתית הטבלה
     document.getElementById("trial-summary-paid").textContent = trialPaidTotal;
     document.getElementById("trial-summary-partial").textContent = trialPartialTotal;
     document.getElementById("trial-summary-unpaid").textContent = trialUnpaidCount;
 
-
-    // --- שילוב הכנסות שנגררו מחודש קודם ---
     let carriedOver = getCarriedOverIncomeForMonth(currentMonth);
     let totalIncomeBeforeRent = currentMonthCollected + carriedOver;
 
-    // --- חישוב והפחתת שכירות לסטודיו ---
     const rentPerSession = appData.settings?.studio_rent_per_session ?? 168;
     const sessionsCount = appData.settings?.studio_sessions_count ?? 4;
     const totalStudioRent = rentPerSession * sessionsCount;
 
+    // חישוב יתרה לתשלום לסטודיו על סמך המפגשים שטרם שולמו
+    ensureStudioSessionsArray();
+    let unpaidSessionsCount = 0;
+    (appData.studio_sessions_payment[currentMonth] || []).forEach(s => {
+        if (s.status !== "שולם") {
+            unpaidSessionsCount++;
+        }
+    });
+    let studioRemaining = unpaidSessionsCount * rentPerSession;
+
     let grandTotalCollected = totalIncomeBeforeRent - totalStudioRent;
 
-    // עדכון תצוגה עליונה
     if (document.getElementById("current-month-collected")) {
         document.getElementById("current-month-collected").textContent = `${currentMonthCollected} ₪`;
         document.getElementById("carried-over-display").textContent = `${carriedOver} ₪`;
         document.getElementById("studio-rent-display").textContent = `-${totalStudioRent} ₪ (${rentPerSession} × ${sessionsCount})`;
+        document.getElementById("studio-remaining-display").textContent = `${studioRemaining} ₪`;
     }
     document.getElementById("total-collected-top").textContent = `${grandTotalCollected} ₪`;
 }
@@ -621,6 +681,8 @@ function saveTableToMemory() {
             allocation: allocation
         };
     });
+
+    saveStudioSessionsFromUI();
 }
 
 function renderStudentsManagementList() {
@@ -768,7 +830,6 @@ function promoteTrialStudent(name) {
         paidSoFar = 0;
     }
 
-    // שמירת כל הכסף ששולם באמצע החודש בקופת מזומני אמצע החודש כדי שייגרר לחודש הבא להתחשבנות מול השותפה
     if (!appData.mid_month_cash) appData.mid_month_cash = {};
     if (!appData.mid_month_cash[currentMonth]) appData.mid_month_cash[currentMonth] = 0;
     appData.mid_month_cash[currentMonth] += paidSoFar;
