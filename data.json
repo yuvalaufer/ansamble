@@ -21,7 +21,6 @@
     "ליאה שחרור וייס",
     "מיכל",
     "נטע בן יצחק",
-    "ענבל יניב",
     "שיר שטיין"
   ],
   "trial_students": {
@@ -45,18 +44,42 @@
         "notes": ""
       },
       "טלי רובין": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם",
+        "paid_amount": 50,
         "allocation": "current",
         "notes": ""
       },
       "דנה רובין": {
+        "status": "שולם",
+        "paid_amount": 50,
+        "allocation": "current",
+        "notes": ""
+      },
+      "שרון 0538230990": {
         "status": "לא שולם",
         "paid_amount": 0,
         "allocation": "current",
         "notes": ""
       },
-      "שרון 0538230990": {
+      "קרן סימן טוב": {
+        "status": "שולם",
+        "paid_amount": 50,
+        "allocation": "current",
+        "notes": ""
+      },
+      "שי גינת": {
+        "status": "שולם",
+        "paid_amount": 50,
+        "allocation": "current",
+        "notes": ""
+      },
+      "רויטל לבנת": {
+        "status": "שולם",
+        "paid_amount": 50,
+        "allocation": "carried",
+        "notes": "תגיע באוקטובר"
+      },
+      "נאווה": {
         "status": "לא שולם",
         "paid_amount": 0,
         "allocation": "current",
@@ -77,13 +100,13 @@
         "status": "שולם חלקי",
         "paid_amount": 190,
         "allocation": "current",
-        "notes": ""
+        "notes": "יהיה 2 מפגשים בספטמבר בלבד"
       },
       "יעל פארן": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם חלקי",
+        "paid_amount": 285,
         "allocation": "current",
-        "notes": ""
+        "notes": "תהיה 3 מפגשים בלבד בספטמבר"
       },
       "ליאה שחרור וייס": {
         "status": "לא שולם",
@@ -92,12 +115,6 @@
         "notes": ""
       },
       "מיכל": {
-        "status": "לא שולם",
-        "paid_amount": 0,
-        "allocation": "current",
-        "notes": ""
-      },
-      "ענבל יניב": {
         "status": "לא שולם",
         "paid_amount": 0,
         "allocation": "current",
@@ -116,10 +133,10 @@
         "notes": ""
       },
       "נטע בן יצחק": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם",
+        "paid_amount": 380,
         "allocation": "current",
-        "notes": ""
+        "notes": "שולם לשירי בביט"
       }
     },
     "אוקטובר 2026": {
@@ -160,12 +177,6 @@
         "notes": ""
       },
       "נטע בן יצחק": {
-        "status": "לא שולם",
-        "paid_amount": 0,
-        "allocation": "current",
-        "notes": ""
-      },
-      "ענבל יניב": {
         "status": "לא שולם",
         "paid_amount": 0,
         "allocation": "current",
