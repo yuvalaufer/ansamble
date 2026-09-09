@@ -83,7 +83,6 @@ async function loadDataFromGitHub() {
         if (!response.ok) throw new Error('שגיאה בטעינת קובץ הנתונים');
         appData = await response.json();
         
-        // וידוא מבנים בסיסיים
         if (!appData.monthly_fees) appData.monthly_fees = {};
         if (!appData.studio_sessions_payment) appData.studio_sessions_payment = {};
         if (!appData.trial_students) appData.trial_students = {};
@@ -136,7 +135,6 @@ function addNewMonthFromDropdown() {
         return;
     }
 
-    // אתחול מבנים לחודש החדש
     appData.payments[newMonthName] = {};
     appData.trial_students[newMonthName] = {};
     appData.studio_sessions_payment[newMonthName] = [
@@ -146,7 +144,6 @@ function addNewMonthFromDropdown() {
         { session_number: 4, status: "לא שולם" }
     ];
 
-    // יצירת תלמידים קבועים לחודש החדש
     appData.students.forEach(s => {
         appData.payments[newMonthName][s] = {
             status: "לא שולם",
@@ -166,8 +163,7 @@ function addNewMonthFromDropdown() {
 function renderApp() {
     if (!appData) return;
 
-    // הגדרות סכומים
-    const monthlyFeeInput = document.getElementById('monthly-feeapp') || document.getElementById('monthly-fee-input');
+    const monthlyFeeInput = document.getElementById('monthly-fee-input');
     const currentFee = getEffectiveMonthlyFee(currentMonth);
     if (monthlyFeeInput) monthlyFeeInput.value = currentFee;
 
@@ -180,7 +176,6 @@ function renderApp() {
     const sessionsCountInput = document.getElementById('studio-sessions-count-input');
     if (sessionsCountInput) sessionsCountInput.value = appData.settings.studio_sessions_count || 4;
 
-    // וידוא שכל התלמידים הקבועים קיימים בחודש הנוכחי
     if (!appData.payments[currentMonth]) appData.payments[currentMonth] = {};
     appData.students.forEach(s => {
         if (!appData.payments[currentMonth][s]) {
@@ -200,7 +195,6 @@ function renderApp() {
     calculateFinancialSummary();
 }
 
-// שליפת סכום חודשי אפקטיבי לחודש
 function getEffectiveMonthlyFee(monthKey) {
     if (appData.monthly_fees && appData.monthly_fees[monthKey] !== undefined) {
         return appData.monthly_fees[monthKey];
@@ -232,7 +226,6 @@ function updateStudioRentSettings() {
         appData.settings.studio_rent_per_session = Number(rentInput.value) || 0;
         appData.settings.studio_sessions_count = Number(countInput.value) || 4;
         
-        // התאמת מערך המפגשים אם השתנתה הכמות
         if (!appData.studio_sessions_payment[currentMonth]) {
             appData.studio_sessions_payment[currentMonth] = [];
         }
@@ -248,6 +241,17 @@ function updateStudioRentSettings() {
 
         renderStudioRentCheckboxes();
         calculateFinancialSummary();
+    }
+}
+
+// פונקציית עזר להחזרת מחלקות צבע לפי סטטוס
+function getStatusClass(status) {
+    if (status === 'שולם') {
+        return 'bg-emerald-100 text-emerald-900 border-emerald-300';
+    } else if (status === 'שולם חלקי') {
+        return 'bg-amber-100 text-amber-900 border-amber-300';
+    } else {
+        return 'bg-rose-100 text-rose-900 border-rose-300';
     }
 }
 
@@ -267,10 +271,12 @@ function renderPaymentsTable() {
         const tr = document.createElement('tr');
         tr.className = index % 2 === 0 ? 'bg-white hover:bg-sky-50/50 transition' : 'bg-slate-50/60 hover:bg-sky-50/50 transition';
 
+        const statusClass = getStatusClass(studentData.status);
+
         tr.innerHTML = `
             <td class="py-3 px-4 font-bold text-slate-800">${studentName}</td>
             <td class="py-3 px-4">
-                <select onchange="updatePaymentField('${studentName}', 'status', this.value)" class="border border-slate-300 rounded-lg px-2.5 py-1 text-xs bg-white font-medium shadow-sm">
+                <select onchange="updatePaymentField('${studentName}', 'status', this.value)" class="border rounded-lg px-2.5 py-1 text-xs font-bold shadow-sm transition ${statusClass}">
                     <option value="לא שולם" ${studentData.status === 'לא שולם' ? 'selected' : ''}>לא שולם</option>
                     <option value="שולם חלקי" ${studentData.status === 'שולם חלקי' ? 'selected' : ''}>שולם חלקי</option>
                     <option value="שולם" ${studentData.status === 'שולם' ? 'selected' : ''}>שולם מלא</option>
@@ -330,7 +336,6 @@ function renderTrialTable() {
 
     if (!appData.trial_students[currentMonth]) appData.trial_students[currentMonth] = {};
     const trials = appData.trial_students[currentMonth];
-    const trialFee = appData.settings.trial_fee || 50;
 
     const names = Object.keys(trials);
     if (names.length === 0) {
@@ -346,10 +351,12 @@ function renderTrialTable() {
         const tr = document.createElement('tr');
         tr.className = index % 2 === 0 ? 'bg-white hover:bg-sky-50/50 transition' : 'bg-slate-50/60 hover:bg-sky-50/50 transition';
 
+        const statusClass = getStatusClass(tData.status);
+
         tr.innerHTML = `
             <td class="py-3 px-4 font-bold text-slate-800">${name}</td>
             <td class="py-3 px-4">
-                <select onchange="updateTrialField('${name}', 'status', this.value)" class="border border-slate-300 rounded-lg px-2.5 py-1 text-xs bg-white font-medium shadow-sm">
+                <select onchange="updateTrialField('${name}', 'status', this.value)" class="border rounded-lg px-2.5 py-1 text-xs font-bold shadow-sm transition ${statusClass}">
                     <option value="לא שולם" ${tData.status === 'לא שולם' ? 'selected' : ''}>לא שולם</option>
                     <option value="שולם חלקי" ${tData.status === 'שולם חלקי' ? 'selected' : ''}>שולם חלקי</option>
                     <option value="שולם" ${tData.status === 'שולם' ? 'selected' : ''}>שולם מלא</option>
@@ -461,7 +468,6 @@ function addStudent() {
 
     appData.students.push(name);
     
-    // הוספת התלמיד לכל החודשים הקיימים כדי למנוע חוסרים
     Object.keys(appData.payments).forEach(m => {
         if (!appData.payments[m][name]) {
             appData.payments[m][name] = { status: "לא שולם", paid_amount: 0, allocation: "current", notes: "" };
@@ -523,7 +529,6 @@ function calculateFinancialSummary() {
     let currentMonthCollected = 0;
     let carriedOverIncome = 0;
 
-    // סיכום קבועים לחודש הנוכחי
     const monthPayments = appData.payments[currentMonth] || {};
     let regPaidCount = 0;
     let regPartialCount = 0;
@@ -542,7 +547,6 @@ function calculateFinancialSummary() {
         else regUnpaidCount++;
     });
 
-    // סיכום תלמידי ניסיון לחודש הנוכחי
     const trialPayments = appData.trial_students[currentMonth] || {};
     let trialPaidCount = 0;
     let trialPartialCount = 0;
@@ -561,12 +565,10 @@ function calculateFinancialSummary() {
         else trialUnpaidCount++;
     });
 
-    // חישוב שכירות לסטודיו (שכירות למפגש × כמות מפגשים)
     const rentPerSession = appData.settings.studio_rent_per_session || 0;
     const sessionsCount = appData.settings.studio_sessions_count || 4;
     const totalStudioRent = rentPerSession * sessionsCount;
 
-    // חישוב יתרה לתשלום לסטודיו (כמה עוד לא שולם מתוך המפגשים)
     let paidStudioSessionsCount = 0;
     const studioSessions = appData.studio_sessions_payment[currentMonth] || [];
     studioSessions.forEach(s => {
@@ -574,7 +576,6 @@ function calculateFinancialSummary() {
     });
     const remainingStudioRent = Math.max(0, totalStudioRent - (paidStudioSessionsCount * rentPerSession));
 
-    // עדכון תצוגה במסך
     setElemText('current-month-collected', `${currentMonthCollected} ₪`);
     setElemText('carried-over-display', `${carriedOverIncome} ₪`);
     setElemText('studio-rent-display', `${totalStudioRent} ₪`);
@@ -584,7 +585,6 @@ function calculateFinancialSummary() {
 
     setElemText('studio-remaining-display', `${remainingStudioRent} ₪`);
 
-    // סיכומי טבלאות
     setElemText('reg-summary-paid', regPaidCount);
     setElemText('reg-summary-partial', regPartialCount);
     setElemText('reg-summary-unpaid', regUnpaidCount);
@@ -616,7 +616,6 @@ async function saveDataToGitHub() {
     const branch = "main";
 
     try {
-        // שלב 1: קבלת SHA נוכחי של הקובץ ב-GitHub
         const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
         const getRes = await fetch(getUrl, {
             headers: {
@@ -632,7 +631,6 @@ async function saveDataToGitHub() {
         const fileData = await getRes.json();
         const sha = fileData.sha;
 
-        // שלב 2: עדכון הקובץ ב-GitHub עם התוכן החדש
         const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(appData, null, 2))));
         
         const putUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
@@ -644,7 +642,7 @@ async function saveDataToGitHub() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                message: `Update payment records for ${currentMonth} via web app`,
+                message: `Update payment records and status colors for ${currentMonth} via web app`,
                 content: contentBase64,
                 sha: sha,
                 branch: branch
@@ -663,7 +661,6 @@ async function saveDataToGitHub() {
     }
 }
 
-// פונקציית עזר למניעת בעיות HTML בתוך שדות טקסט
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
