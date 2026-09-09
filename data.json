@@ -21,7 +21,8 @@
     "ליאה שחרור וייס",
     "מיכל",
     "נטע בן יצחק",
-    "שיר שטיין"
+    "שיר שטיין",
+    "יערה אביאור"
   ],
   "trial_students": {
     "ספטמבר 2026": {
@@ -59,7 +60,7 @@
         "status": "לא שולם",
         "paid_amount": 0,
         "allocation": "current",
-        "notes": "תגיע מהמפגש השני"
+        "notes": ""
       },
       "קרן סימן טוב": {
         "status": "שולם",
@@ -118,7 +119,7 @@
         "status": "לא שולם",
         "paid_amount": 0,
         "allocation": "current",
-        "notes": "תצטרף באוקטובר"
+        "notes": ""
       },
       "שיר שטיין": {
         "status": "שולם",
@@ -137,6 +138,12 @@
         "paid_amount": 380,
         "allocation": "current",
         "notes": "שולם לשירי בביט"
+      },
+      "יערה אביאור": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
       }
     },
     "אוקטובר 2026": {
