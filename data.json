@@ -137,8 +137,8 @@
         "notes": "משלמת עבור 2 מפגשים"
       },
       "אילן רובין": {
-        "status": "שולם חלקי",
-        "paid_amount": 50,
+        "status": "שולם",
+        "paid_amount": 380,
         "allocation": "current",
         "notes": ""
       },
