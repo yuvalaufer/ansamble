@@ -150,7 +150,7 @@
         "status": "שולם חלקי",
         "paid_amount": 190,
         "allocation": "current",
-        "notes": "שולם עבור 2 מפגשים"
+        "notes": "משלמת עבור 2 מפגשים"
       }
     },
     "אוקטובר 2026": {
@@ -201,6 +201,18 @@
         "paid_amount": 0,
         "allocation": "current",
         "notes": ""
+      },
+      "יערה אביאור": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "נאווה יהושוע לוריג": {
+        "status": "שולם חלקי",
+        "paid_amount": 190,
+        "allocation": "current",
+        "notes": "שילמה בספטמבר 2 מפגשים בטעות"
       }
     }
   },
@@ -212,6 +224,24 @@
       {
         "session_number": 1,
         "status": "שולם"
+      },
+      {
+        "session_number": 2,
+        "status": "לא שולם"
+      },
+      {
+        "session_number": 3,
+        "status": "לא שולם"
+      },
+      {
+        "session_number": 4,
+        "status": "לא שולם"
+      }
+    ],
+    "אוקטובר 2026": [
+      {
+        "session_number": 1,
+        "status": "לא שולם"
       },
       {
         "session_number": 2,
