@@ -10,7 +10,7 @@
     "אוקטובר 2026": 0
   },
   "mid_month_cash": {
-    "ספטמבר 2026": 0,
+    "ספטמבר 2026": 100,
     "אוקטובר 2026": 0
   },
   "students": [
@@ -23,23 +23,13 @@
     "נטע בן יצחק",
     "שיר שטיין",
     "יערה אביאור",
-    "נאווה יהושוע לוריג"
+    "נאווה יהושוע לוריג",
+    "אילן רובין",
+    "מירב שפר"
   ],
   "trial_students": {
     "ספטמבר 2026": {
       "דרור": {
-        "status": "שולם",
-        "paid_amount": 50,
-        "allocation": "current",
-        "notes": ""
-      },
-      "מירב שפר": {
-        "status": "שולם",
-        "paid_amount": 50,
-        "allocation": "current",
-        "notes": ""
-      },
-      "אילן רובין": {
         "status": "שולם",
         "paid_amount": 50,
         "allocation": "current",
@@ -80,12 +70,6 @@
         "paid_amount": 50,
         "allocation": "carried",
         "notes": "תגיע באוקטובר"
-      },
-      "נאווה": {
-        "status": "לא שולם",
-        "paid_amount": 0,
-        "allocation": "current",
-        "notes": ""
       }
     },
     "אוקטובר 2026": {}
@@ -120,7 +104,7 @@
         "status": "לא שולם",
         "paid_amount": 0,
         "allocation": "current",
-        "notes": ""
+        "notes": "מצטרפת באוקטובר"
       },
       "שיר שטיין": {
         "status": "שולם",
@@ -129,8 +113,8 @@
         "notes": ""
       },
       "הדס יריב": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם",
+        "paid_amount": 380,
         "allocation": "current",
         "notes": ""
       },
@@ -151,6 +135,18 @@
         "paid_amount": 190,
         "allocation": "current",
         "notes": "משלמת עבור 2 מפגשים"
+      },
+      "אילן רובין": {
+        "status": "שולם חלקי",
+        "paid_amount": 50,
+        "allocation": "current",
+        "notes": ""
+      },
+      "מירב שפר": {
+        "status": "שולם חלקי",
+        "paid_amount": 50,
+        "allocation": "current",
+        "notes": ""
       }
     },
     "אוקטובר 2026": {
