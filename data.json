@@ -81,13 +81,13 @@
         "status": "שולם חלקי",
         "paid_amount": 190,
         "allocation": "current",
-        "notes": "יהיה 2 מפגשים בספטמבר בלבד"
+        "notes": "יגיע לשני מפגשים בספטמבר"
       },
       "יעל פארן": {
         "status": "שולם חלקי",
         "paid_amount": 285,
         "allocation": "current",
-        "notes": "תהיה 3 מפגשים בלבד בספטמבר"
+        "notes": "תגיע ל 3 מפגשים בספטמבר"
       },
       "ליאה שחרור וייס": {
         "status": "לא שולם",
@@ -129,7 +129,7 @@
         "status": "שולם חלקי",
         "paid_amount": 190,
         "allocation": "current",
-        "notes": "משלמת עבור 2 מפגשים"
+        "notes": "תגיע לשני מפגשים בספטמבר"
       },
       "אילן רובין": {
         "status": "שולם",
@@ -210,6 +210,24 @@
         "paid_amount": 190,
         "allocation": "current",
         "notes": "שילמה בספטמבר 2 מפגשים בטעות"
+      },
+      "אילן רובין": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "מירב שפר": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "שי גינת": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
       }
     }
   },
