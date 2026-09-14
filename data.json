@@ -105,7 +105,7 @@
         "status": "שולם",
         "paid_amount": 380,
         "allocation": "current",
-        "notes": ""
+        "notes": "תהיה 2 מםגשים בספטמבר"
       },
       "הדס יריב": {
         "status": "שולם",
@@ -120,8 +120,8 @@
         "notes": "שולם לשירי בביט"
       },
       "יערה אביאור": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם חלקי",
+        "paid_amount": 190,
         "allocation": "current",
         "notes": ""
       },
