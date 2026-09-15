@@ -145,9 +145,9 @@
       },
       "שי גינת": {
         "status": "שולם חלקי",
-        "paid_amount": 285,
+        "paid_amount": 190,
         "allocation": "current",
-        "notes": "תגיע ל 3 מפגשים בספטמבר"
+        "notes": "תגיע ל 2 מפגשים בספטמבר"
       }
     },
     "אוקטובר 2026": {
@@ -242,7 +242,7 @@
       },
       {
         "session_number": 2,
-        "status": "לא שולם"
+        "status": "שולם"
       },
       {
         "session_number": 3,
