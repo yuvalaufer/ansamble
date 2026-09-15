@@ -90,8 +90,8 @@
         "notes": "תגיע ל 3 מפגשים בספטמבר"
       },
       "ליאה שחרור וייס": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם",
+        "paid_amount": 380,
         "allocation": "current",
         "notes": ""
       },
@@ -224,10 +224,10 @@
         "notes": ""
       },
       "שי גינת": {
-        "status": "שולם חלקי",
-        "paid_amount": 95,
+        "status": "לא שולם",
+        "paid_amount": 0,
         "allocation": "current",
-        "notes": "שילמה עבור מפגש אקסטרה בספטמבר"
+        "notes": ""
       }
     }
   },
