@@ -67,9 +67,9 @@
         "notes": "תגיע באוקטובר"
       },
       "יפית מרימי": {
-        "status": "לא שולם",
-        "paid_amount": 0,
-        "allocation": "current",
+        "status": "שולם חלקי",
+        "paid_amount": 50,
+        "allocation": "carried",
         "notes": ""
       },
       "איילת סלע": {
@@ -258,7 +258,7 @@
       },
       {
         "session_number": 3,
-        "status": "לא שולם"
+        "status": "שולם"
       },
       {
         "session_number": 4,
