@@ -65,6 +65,18 @@
         "paid_amount": 50,
         "allocation": "carried",
         "notes": "תגיע באוקטובר"
+      },
+      "יפית מרימי": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "איילת סלע": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
       }
     },
     "אוקטובר 2026": {}
