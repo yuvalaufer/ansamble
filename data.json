@@ -58,22 +58,16 @@
         "allocation": "current",
         "notes": ""
       },
-      "רויטל לבנת": {
-        "status": "שולם",
-        "paid_amount": 50,
-        "allocation": "carried",
-        "notes": "תגיע באוקטובר"
-      },
       "יפית מרימי": {
-        "status": "שולם חלקי",
+        "status": "שולם",
         "paid_amount": 50,
         "allocation": "carried",
         "notes": ""
       },
       "איילת סלע": {
-        "status": "לא שולם",
-        "paid_amount": 0,
-        "allocation": "current",
+        "status": "שולם",
+        "paid_amount": 50,
+        "allocation": "carried",
         "notes": ""
       },
       "חיסכון בתשלוםאחד  לסטודיו": {
