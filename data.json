@@ -83,6 +83,12 @@
         "paid_amount": 50,
         "allocation": "current",
         "notes": ""
+      },
+      "איילת  סלע": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": "כבר היתה במפגש ניסיון. תצטרף בהמשך"
       }
     }
   },
