@@ -59,6 +59,7 @@ function saveToken() {
         showStatus("נא להזין Token תקין", "error");
         return;
     }
+
     localStorage.setItem("github_token", token);
     showStatus("הטוקן נשמר בהצלחה בדפדפן!", "success");
     toggleTokenSettings();
@@ -67,6 +68,7 @@ function saveToken() {
 function showStatus(text, type = "success") {
     const msgEl = document.getElementById("status-message");
     msgEl.textContent = text;
+
     msgEl.classList.remove(
         "hidden",
         "bg-emerald-50",
@@ -98,28 +100,31 @@ function showStatus(text, type = "success") {
 
 async function loadDataFromGitHub() {
     try {
-        const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
+        const url =
+            `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
 
         const response = await fetch(url, {
             headers: {
-                Accept: "application/vnd.github.v3+json"
+                "Accept": "application/vnd.github.v3+json"
             }
         });
 
         if (!response.ok) {
-            throw new Error("שגיאה בטעינת קובץ הנתונים מ-GitHub");
+            throw new Error(
+                "שגיאה בטעינת קובץ הנתונים מ-GitHub"
+            );
         }
 
         const fileData = await response.json();
 
-        const binaryString = atob(
-            fileData.content.replace(/\s/g, "")
-        );
+        const binaryString =
+            atob(fileData.content.replace(/\s/g, ""));
 
-        const bytes = Uint8Array.from(
-            binaryString,
-            c => c.charCodeAt(0)
-        );
+        const bytes =
+            Uint8Array.from(
+                binaryString,
+                c => c.charCodeAt(0)
+            );
 
         const decodedContent =
             new TextDecoder("utf-8").decode(bytes);
@@ -128,6 +133,9 @@ async function loadDataFromGitHub() {
 
         if (!appData.trial_students)
             appData.trial_students = {};
+
+        if (!appData.trial_students_removed)
+            appData.trial_students_removed = [];
 
         if (!appData.mid_month_cash)
             appData.mid_month_cash = {};
@@ -142,15 +150,13 @@ async function loadDataFromGitHub() {
             appData.studio_sessions_payment = {};
 
         if (
-            appData.settings.studio_rent_per_session ===
-            undefined
+            appData.settings.studio_rent_per_session === undefined
         ) {
             appData.settings.studio_rent_per_session = 168;
         }
 
         if (
-            appData.settings.studio_sessions_count ===
-            undefined
+            appData.settings.studio_sessions_count === undefined
         ) {
             appData.settings.studio_sessions_count = 4;
         }
@@ -161,6 +167,7 @@ async function loadDataFromGitHub() {
             "הנתונים נטענו בהצלחה מ-GitHub!",
             "success"
         );
+
     } catch (error) {
         console.error(error);
 
@@ -184,7 +191,7 @@ function initAppUI() {
     ).value =
         appData.settings.studio_sessions_count;
 
-    // בכל פתיחה של האתר מתחילים תמיד בחודש הנוכחי.
+    // בכל פתיחה של האתר מתחילים תמיד בחודש הנוכחי לפי תאריך הדפדפן.
     const today = new Date();
 
     currentMonth =
@@ -205,16 +212,22 @@ function getMonthlyFeeForMonth(monthStr) {
     }
 
     const allMonths = getAllSortedMonths();
-    const currentIndex = allMonths.indexOf(monthStr);
+
+    const currentIndex =
+        allMonths.indexOf(monthStr);
 
     if (currentIndex > 0) {
-        for (let i = currentIndex - 1; i >= 0; i--) {
-            let prevMonth = allMonths[i];
+        for (
+            let i = currentIndex - 1;
+            i >= 0;
+            i--
+        ) {
+            let prevMonth =
+                allMonths[i];
 
             if (
                 appData.monthly_fees &&
-                appData.monthly_fees[prevMonth] !==
-                    undefined
+                appData.monthly_fees[prevMonth] !== undefined
             ) {
                 return appData.monthly_fees[prevMonth];
             }
@@ -242,12 +255,14 @@ function getTrialFee() {
 }
 
 function updateMonthlyFee(newVal) {
-    const fee = parseInt(newVal) || 0;
+    const fee =
+        parseInt(newVal) || 0;
 
     if (!appData.monthly_fees)
         appData.monthly_fees = {};
 
-    appData.monthly_fees[currentMonth] = fee;
+    appData.monthly_fees[currentMonth] =
+        fee;
 
     renderTable();
 
@@ -258,12 +273,14 @@ function updateMonthlyFee(newVal) {
 }
 
 function updateTrialFee(newVal) {
-    const fee = parseInt(newVal) || 0;
+    const fee =
+        parseInt(newVal) || 0;
 
     if (!appData.settings)
         appData.settings = {};
 
-    appData.settings.trial_fee = fee;
+    appData.settings.trial_fee =
+        fee;
 
     renderTrialTable();
 
@@ -328,6 +345,7 @@ function ensureStudioSessionsArray() {
                 status: "לא שולם"
             });
         }
+
     } else {
         const count =
             appData.settings.studio_sessions_count || 4;
@@ -348,10 +366,17 @@ function ensureStudioSessionsArray() {
                     status: "לא שולם"
                 });
             }
-        } else if (currentArr.length > count) {
+
+        } else if (
+            currentArr.length > count
+        ) {
             appData.studio_sessions_payment[
                 currentMonth
-            ] = currentArr.slice(0, count);
+            ] =
+                currentArr.slice(
+                    0,
+                    count
+                );
         }
     }
 }
@@ -367,34 +392,43 @@ function renderStudioSessionsCheckboxes() {
     container.innerHTML = "";
 
     const sessions =
-        appData.studio_sessions_payment[currentMonth];
+        appData.studio_sessions_payment[
+            currentMonth
+        ];
 
-    sessions.forEach((session, index) => {
-        const isPaid =
-            session.status === "שולם";
+    sessions.forEach(
+        (session, index) => {
 
-        const label =
-            document.createElement("label");
+            const isPaid =
+                session.status === "שולם";
 
-        label.className =
-            `flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold cursor-pointer transition ${
-                isPaid
-                    ? "bg-emerald-100 border-emerald-300 text-emerald-900"
-                    : "bg-white border-slate-300 text-slate-700"
-            }`;
+            const label =
+                document.createElement(
+                    "label"
+                );
 
-        label.innerHTML = `
-            <input
-                type="checkbox"
-                ${isPaid ? "checked" : ""}
-                onchange="toggleStudioSessionStatus(${index})"
-                class="rounded text-emerald-600 focus:ring-emerald-500"
-            >
-            <span>מפגש ${session.session_number}</span>
-        `;
+            label.className =
+                `flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold cursor-pointer transition ${
+                    isPaid
+                        ? "bg-emerald-100 border-emerald-300 text-emerald-900"
+                        : "bg-white border-slate-300 text-slate-700"
+                }`;
 
-        container.appendChild(label);
-    });
+            label.innerHTML = `
+                <input
+                    type="checkbox"
+                    ${isPaid ? "checked" : ""}
+                    onchange="toggleStudioSessionStatus(${index})"
+                    class="rounded text-emerald-600 focus:ring-emerald-500"
+                >
+                <span>מפגש ${session.session_number}</span>
+            `;
+
+            container.appendChild(
+                label
+            );
+        }
+    );
 }
 
 function toggleStudioSessionStatus(index) {
@@ -442,23 +476,27 @@ function saveStudioSessionsFromUI() {
         !appData.studio_sessions_payment[
             currentMonth
         ]
-    )
+    ) {
         return;
+    }
 
-    checkboxes.forEach((cb, index) => {
-        if (
-            appData.studio_sessions_payment[
-                currentMonth
-            ][index]
-        ) {
-            appData.studio_sessions_payment[
-                currentMonth
-            ][index].status =
-                cb.checked
-                    ? "שולם"
-                    : "לא שולם";
+    checkboxes.forEach(
+        (cb, index) => {
+
+            if (
+                appData.studio_sessions_payment[
+                    currentMonth
+                ][index]
+            ) {
+                appData.studio_sessions_payment[
+                    currentMonth
+                ][index].status =
+                    cb.checked
+                        ? "שולם"
+                        : "לא שולם";
+            }
         }
-    });
+    );
 }
 
 function getAllSortedMonths() {
@@ -477,25 +515,33 @@ function getAllSortedMonths() {
     if (appData.monthly_fees) {
         Object.keys(
             appData.monthly_fees
-        ).forEach(m =>
-            monthsSet.add(m)
+        ).forEach(
+            m => monthsSet.add(m)
         );
     }
 
     if (appData.studio_sessions_payment) {
         Object.keys(
             appData.studio_sessions_payment
-        ).forEach(m =>
-            monthsSet.add(m)
+        ).forEach(
+            m => monthsSet.add(m)
         );
     }
 
-    monthsSet.add(defaultMonthStr);
+    monthsSet.add(
+        defaultMonthStr
+    );
 
-    return Array.from(monthsSet).sort(
+    return Array.from(
+        monthsSet
+    ).sort(
         (a, b) => {
-            let [m1, y1] = a.split(" ");
-            let [m2, y2] = b.split(" ");
+
+            let [m1, y1] =
+                a.split(" ");
+
+            let [m2, y2] =
+                b.split(" ");
 
             let date1 =
                 new Date(
@@ -529,7 +575,9 @@ function setupMonthsDropdown() {
 
     sortedMonths.forEach(m => {
         const opt =
-            document.createElement("option");
+            document.createElement(
+                "option"
+            );
 
         opt.value = m;
         opt.textContent = m;
@@ -537,14 +585,17 @@ function setupMonthsDropdown() {
         select.appendChild(opt);
     });
 
-    const today = new Date();
+    const today =
+        new Date();
 
     let defaultMonthStr =
         `${MONTH_NAMES[today.getMonth()]} ${today.getFullYear()}`;
 
     if (
         !currentMonth ||
-        !sortedMonths.includes(currentMonth)
+        !sortedMonths.includes(
+            currentMonth
+        )
     ) {
         currentMonth =
             sortedMonths.includes(
@@ -556,7 +607,8 @@ function setupMonthsDropdown() {
                 ];
     }
 
-    select.value = currentMonth;
+    select.value =
+        currentMonth;
 
     renderTable();
     renderTrialTable();
@@ -596,7 +648,9 @@ function addNewMonthFromDropdown() {
         appData.payments = {};
 
     if (
-        !appData.payments[monthName]
+        !appData.payments[
+            monthName
+        ]
     ) {
         appData.payments[
             monthName
@@ -625,11 +679,16 @@ function addNewMonthFromDropdown() {
 }
 
 function getRowBgClass(status) {
-    if (status === "שולם")
+    if (status === "שולם") {
         return "bg-emerald-200 hover:bg-emerald-300 text-emerald-950";
+    }
 
-    if (status === "שולם חלקי")
+    if (
+        status ===
+        "שולם חלקי"
+    ) {
         return "bg-amber-200 hover:bg-amber-300 text-amber-950";
+    }
 
     return "bg-rose-200 hover:bg-rose-300 text-rose-950";
 }
@@ -673,127 +732,195 @@ function renderTable() {
             ])
         );
 
-    allStudents.forEach(student => {
-        const pData =
-            monthPayments[
-                student
-            ] || {
-                status: "לא שולם",
-                paid_amount: 0,
-                allocation: "current"
-            };
+    allStudents.forEach(
+        student => {
 
-        const status =
-            pData.status;
+            const pData =
+                monthPayments[
+                    student
+                ] || {
+                    status:
+                        "לא שולם",
+                    paid_amount:
+                        0,
+                    allocation:
+                        "current",
+                    notes:
+                        ""
+                };
 
-        let paidAmount =
-            pData.paid_amount;
+            const status =
+                pData.status;
 
-        const allocation =
-            pData.allocation ||
-            "current";
+            let paidAmount =
+                pData.paid_amount;
 
-        let remaining = 0;
+            const allocation =
+                pData.allocation ||
+                "current";
 
-        if (status === "שולם") {
-            paidAmount =
-                monthlyFee;
+            const notes =
+                pData.notes ||
+                "";
 
-            remaining = 0;
-        } else if (
-            status ===
-            "שולם חלקי"
-        ) {
-            remaining =
-                Math.max(
-                    0,
-                    monthlyFee -
-                    paidAmount
+            let remaining = 0;
+
+            if (
+                status ===
+                "שולם"
+            ) {
+                paidAmount =
+                    monthlyFee;
+
+                remaining =
+                    0;
+
+            } else if (
+                status ===
+                "שולם חלקי"
+            ) {
+                remaining =
+                    Math.max(
+                        0,
+                        monthlyFee -
+                        paidAmount
+                    );
+
+            } else {
+                paidAmount =
+                    0;
+
+                remaining =
+                    monthlyFee;
+            }
+
+            const tr =
+                document.createElement(
+                    "tr"
                 );
-        } else {
-            paidAmount = 0;
-            remaining =
-                monthlyFee;
+
+            tr.className =
+                `border-b border-slate-300/60 transition ${getRowBgClass(status)}`;
+
+            tr.dataset.student =
+                student;
+
+            tr.innerHTML = `
+                <td class="py-3 px-4 font-bold text-slate-900">
+                    ${student}
+                </td>
+
+                <td class="py-3 px-4">
+                    <select
+                        onchange="handleStatusChange(this)"
+                        class="status-select border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium"
+                    >
+                        <option value="לא שולם" ${status === "לא שולם" ? "selected" : ""}>
+                            לא שולם
+                        </option>
+
+                        <option value="שולם" ${status === "שולם" ? "selected" : ""}>
+                            שולם
+                        </option>
+
+                        <option value="שולם חלקי" ${status === "שולם חלקי" ? "selected" : ""}>
+                            שולם חלקי
+                        </option>
+                    </select>
+                </td>
+
+                <td class="py-3 px-4">
+                    <input
+                        type="number"
+                        value="${paidAmount}"
+                        ${status !== "שולם חלקי" ? "disabled" : ""}
+                        class="paid-input w-24 border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm disabled:bg-slate-100 disabled:text-slate-500 font-medium"
+                        oninput="calculateTotals()"
+                    >
+                </td>
+
+                <td class="py-3 px-4">
+                    <select
+                        class="allocation-select border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium"
+                        onchange="calculateTotals()"
+                    >
+                        <option value="current" ${allocation === "current" ? "selected" : ""}>
+                            תשלום לחודש זה
+                        </option>
+
+                        <option value="carried" ${allocation === "carried" ? "selected" : ""}>
+                            נגרר לחודש הבא
+                        </option>
+                    </select>
+                </td>
+
+                <td
+                    class="py-3 px-4 font-bold remaining-cell ${
+                        remaining > 0
+                            ? "text-amber-950"
+                            : "text-emerald-950"
+                    }"
+                >
+                    ${remaining} ₪
+                </td>
+
+                <td class="py-3 px-4">
+                    <input
+                        type="text"
+                        value="${notes}"
+                        placeholder="הוסף הערה..."
+                        class="notes-input w-full border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium"
+                    >
+                </td>
+            `;
+
+            tbody.appendChild(
+                tr
+            );
         }
-
-        const tr =
-            document.createElement("tr");
-
-        tr.className =
-            `border-b border-slate-300/60 transition ${getRowBgClass(status)}`;
-
-        tr.dataset.student =
-            student;
-
-        tr.innerHTML = `
-            <td class="py-3 px-4 font-bold text-slate-900">
-                ${student}
-            </td>
-
-            <td class="py-3 px-4">
-                <select
-                    onchange="handleStatusChange(this)"
-                    class="status-select border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium"
-                >
-                    <option value="לא שולם" ${status === "לא שולם" ? "selected" : ""}>
-                        לא שולם
-                    </option>
-
-                    <option value="שולם" ${status === "שולם" ? "selected" : ""}>
-                        שולם
-                    </option>
-
-                    <option value="שולם חלקי" ${status === "שולם חלקי" ? "selected" : ""}>
-                        שולם חלקי
-                    </option>
-                </select>
-            </td>
-
-            <td class="py-3 px-4">
-                <input
-                    type="number"
-                    value="${paidAmount}"
-                    ${status !== "שולם חלקי" ? "disabled" : ""}
-                    class="paid-input w-24 border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm disabled:bg-slate-100 disabled:text-slate-500 font-medium"
-                    oninput="calculateTotals()"
-                >
-            </td>
-
-            <td class="py-3 px-4">
-                <select
-                    class="allocation-select border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium"
-                    onchange="calculateTotals()"
-                >
-                    <option value="current" ${allocation === "current" ? "selected" : ""}>
-                        תשלום לחודש זה
-                    </option>
-
-                    <option value="carried" ${allocation === "carried" ? "selected" : ""}>
-                        נגרר לחודש הבא
-                    </option>
-                </select>
-            </td>
-
-            <td
-                class="py-3 px-4 font-bold remaining-cell ${
-                    remaining > 0
-                        ? "text-amber-950"
-                        : "text-emerald-950"
-                }"
-            >
-                ${remaining} ₪
-            </td>
-        `;
-
-        tbody.appendChild(tr);
-    });
+    );
 
     calculateTotals();
+}
+
+function monthStringToDate(monthStr) {
+    const [
+        monthName,
+        yearStr
+    ] =
+        monthStr.split(" ");
+
+    const monthIndex =
+        MONTH_NAMES.indexOf(
+            monthName
+        );
+
+    const year =
+        parseInt(
+            yearStr,
+            10
+        );
+
+    if (
+        monthIndex === -1 ||
+        Number.isNaN(year)
+    ) {
+        return null;
+    }
+
+    return new Date(
+        year,
+        monthIndex,
+        1
+    );
 }
 
 function ensureTrialStudentsForMonth(monthStr) {
     if (!appData.trial_students)
         appData.trial_students = {};
+
+    if (!appData.trial_students_removed)
+        appData.trial_students_removed = [];
 
     if (
         !appData.trial_students[
@@ -805,12 +932,13 @@ function ensureTrialStudentsForMonth(monthStr) {
         ] = {};
     }
 
-    if (
-        !appData.trial_students_removed
-    ) {
-        appData.trial_students_removed =
-            [];
-    }
+    const targetDate =
+        monthStringToDate(
+            monthStr
+        );
+
+    if (!targetDate)
+        return;
 
     const removedStudents =
         new Set(
@@ -822,87 +950,98 @@ function ensureTrialStudentsForMonth(monthStr) {
             appData.students || []
         );
 
-    const [
-        targetMonthName,
-        targetYearStr
-    ] =
-        monthStr.split(" ");
+    const previousMonths =
+        Object.keys(
+            appData.trial_students
+        )
+            .filter(month => {
+                if (
+                    month === monthStr
+                ) {
+                    return false;
+                }
 
-    const targetDate =
-        new Date(
-            parseInt(
-                targetYearStr
-            ),
-            MONTH_NAMES.indexOf(
-                targetMonthName
-            ),
-            1
-        );
+                const d =
+                    monthStringToDate(
+                        month
+                    );
 
-    Object.keys(
-        appData.trial_students
-    ).forEach(
-        sourceMonth => {
-
-            if (
-                sourceMonth ===
-                monthStr
-            )
-                return;
-
-            const [
-                sourceMonthName,
-                sourceYearStr
-            ] =
-                sourceMonth.split(" ");
-
-            const sourceDate =
-                new Date(
-                    parseInt(
-                        sourceYearStr
-                    ),
-                    MONTH_NAMES.indexOf(
-                        sourceMonthName
-                    ),
-                    1
+                return (
+                    d &&
+                    d < targetDate
                 );
+            })
+            .sort(
+                (a, b) =>
+                    monthStringToDate(b) -
+                    monthStringToDate(a)
+            );
 
-            // מעבירים רק תלמידי ניסיון מחודשים קודמים.
-            if (
-                sourceDate >=
-                targetDate
-            )
-                return;
+    const seenNames =
+        new Set();
+
+    previousMonths.forEach(
+        month => {
+
+            const monthTrials =
+                appData.trial_students[
+                    month
+                ] || {};
 
             Object.keys(
-                appData.trial_students[
-                    sourceMonth
-                ] || {}
+                monthTrials
             ).forEach(name => {
+
+                if (
+                    seenNames.has(name)
+                ) {
+                    return;
+                }
+
+                seenNames.add(
+                    name
+                );
+
+                if (
+                    removedStudents.has(
+                        name
+                    )
+                ) {
+                    return;
+                }
 
                 if (
                     regularStudents.has(
                         name
-                    ) ||
-                    removedStudents.has(
-                        name
                     )
-                )
+                ) {
                     return;
+                }
 
                 if (
                     appData.trial_students[
                         monthStr
                     ][name]
-                )
+                ) {
                     return;
+                }
+
+                const previousData =
+                    monthTrials[name] ||
+                    {};
 
                 appData.trial_students[
                     monthStr
                 ][name] = {
-                    status: "לא שולם",
-                    paid_amount: 0,
-                    allocation: "current"
+                    status:
+                        "לא שולם",
+                    paid_amount:
+                        0,
+                    allocation:
+                        "current",
+                    notes:
+                        previousData.notes ||
+                        ""
                 };
             });
         }
@@ -951,16 +1090,23 @@ function renderTrialTable() {
             tData.allocation ||
             "current";
 
+        const notes =
+            tData.notes ||
+            "";
+
         if (
             status === "שולם"
-        )
+        ) {
             paidAmount =
                 trialFee;
 
-        else if (
-            status === "לא שולם"
-        )
-            paidAmount = 0;
+        } else if (
+            status ===
+            "לא שולם"
+        ) {
+            paidAmount =
+                0;
+        }
 
         const tr =
             document.createElement(
@@ -1025,6 +1171,15 @@ function renderTrialTable() {
                 </select>
             </td>
 
+            <td class="py-3 px-4">
+                <input
+                    type="text"
+                    value="${notes}"
+                    placeholder="הוסף הערה..."
+                    class="trial-notes-input w-full border border-slate-300 rounded-lg px-2.5 py-1 text-sm bg-white shadow-sm font-medium"
+                >
+            </td>
+
             <td class="py-3 px-4 flex items-center gap-2">
                 <button
                     onclick="promoteTrialStudent('${name}')"
@@ -1042,7 +1197,9 @@ function renderTrialTable() {
             </td>
         `;
 
-        tbody.appendChild(tr);
+        tbody.appendChild(
+            tr
+        );
     });
 
     calculateTotals();
@@ -1050,7 +1207,9 @@ function renderTrialTable() {
 
 function handleStatusChange(selectEl) {
     const row =
-        selectEl.closest("tr");
+        selectEl.closest(
+            "tr"
+        );
 
     const status =
         selectEl.value;
@@ -1068,7 +1227,9 @@ function handleStatusChange(selectEl) {
     row.className =
         `border-b border-slate-300/60 transition ${getRowBgClass(status)}`;
 
-    if (status === "שולם") {
+    if (
+        status === "שולם"
+    ) {
         paidInput.value =
             monthlyFee;
 
@@ -1095,7 +1256,9 @@ function handleStatusChange(selectEl) {
         }
 
     } else {
-        paidInput.value = 0;
+        paidInput.value =
+            0;
+
         paidInput.disabled =
             true;
     }
@@ -1105,7 +1268,9 @@ function handleStatusChange(selectEl) {
 
 function handleTrialStatusChange(selectEl) {
     const row =
-        selectEl.closest("tr");
+        selectEl.closest(
+            "tr"
+        );
 
     const status =
         selectEl.value;
@@ -1150,7 +1315,8 @@ function handleTrialStatusChange(selectEl) {
         }
 
     } else {
-        paidInput.value = 0;
+        paidInput.value =
+            0;
 
         paidInput.disabled =
             true;
@@ -1173,15 +1339,17 @@ function getCarriedOverIncomeForMonth(monthStr) {
 
     if (
         currentIndex <= 0
-    )
+    ) {
         return 0;
+    }
 
     let prevMonth =
         allMonths[
             currentIndex - 1
         ];
 
-    let carriedSum = 0;
+    let carriedSum =
+        0;
 
     let prevPayments =
         appData.payments &&
@@ -1308,9 +1476,14 @@ function calculateTotals() {
             "#payments-tbody tr"
         );
 
-    let regPaidTotal = 0;
-    let regPartialTotal = 0;
-    let regUnpaidCount = 0;
+    let regPaidTotal =
+        0;
+
+    let regPartialTotal =
+        0;
+
+    let regUnpaidCount =
+        0;
 
     const monthlyFee =
         getMonthlyFeeForMonth(
@@ -1344,7 +1517,8 @@ function calculateTotals() {
                 paidInput.value
             ) || 0;
 
-        let remaining = 0;
+        let remaining =
+            0;
 
         if (
             status === "שולם"
@@ -1370,7 +1544,8 @@ function calculateTotals() {
                 paidAmount;
 
         } else {
-            paidAmount = 0;
+            paidAmount =
+                0;
 
             remaining =
                 monthlyFee;
@@ -1418,9 +1593,14 @@ function calculateTotals() {
             "#trial-tbody tr"
         );
 
-    let trialPaidTotal = 0;
-    let trialPartialTotal = 0;
-    let trialUnpaidCount = 0;
+    let trialPaidTotal =
+        0;
+
+    let trialPartialTotal =
+        0;
+
+    let trialUnpaidCount =
+        0;
 
     const trialFee =
         getTrialFee();
@@ -1464,7 +1644,8 @@ function calculateTotals() {
                 paidAmount;
 
         } else {
-            paidAmount = 0;
+            paidAmount =
+                0;
 
             trialUnpaidCount +=
                 1;
@@ -1621,23 +1802,27 @@ function saveTableToMemory() {
                 ".allocation-select"
             ).value;
 
+        const notes =
+            row.querySelector(
+                ".notes-input"
+            ).value;
+
         appData.payments[
             currentMonth
         ][student] = {
-            status: status,
+            status:
+                status,
             paid_amount:
                 paidAmount,
             allocation:
-                allocation
+                allocation,
+            notes:
+                notes
         };
     });
 
-    if (
-        !appData.trial_students
-    ) {
-        appData.trial_students =
-            {};
-    }
+    if (!appData.trial_students)
+        appData.trial_students = {};
 
     if (
         !appData.trial_students[
@@ -1676,14 +1861,22 @@ function saveTableToMemory() {
                 ".trial-allocation-select"
             ).value;
 
+        const notes =
+            row.querySelector(
+                ".trial-notes-input"
+            ).value;
+
         appData.trial_students[
             currentMonth
         ][name] = {
-            status: status,
+            status:
+                status,
             paid_amount:
                 paidAmount,
             allocation:
-                allocation
+                allocation,
+            notes:
+                notes
         };
     });
 
@@ -1696,10 +1889,12 @@ function renderStudentsManagementList() {
             "students-list-container"
         );
 
-    container.innerHTML = "";
+    container.innerHTML =
+        "";
 
     if (!appData.students)
-        appData.students = [];
+        appData.students =
+            [];
 
     appData.students.forEach(
         (student, index) => {
@@ -1777,7 +1972,8 @@ function addStudent() {
         name
     );
 
-    input.value = "";
+    input.value =
+        "";
 
     renderStudentsManagementList();
     renderTable();
@@ -1816,8 +2012,9 @@ function updateStudentName(index) {
     if (
         newName ===
         oldName
-    )
+    ) {
         return;
+    }
 
     if (
         appData.students.includes(
@@ -1834,7 +2031,8 @@ function updateStudentName(index) {
 
     appData.students[
         index
-    ] = newName;
+    ] =
+        newName;
 
     if (
         appData.payments
@@ -1883,8 +2081,9 @@ function deleteStudent(index) {
         !confirm(
             `האם אתה בטוח שברצונך למחוק את ${name}?`
         )
-    )
+    ) {
         return;
+    }
 
     appData.students.splice(
         index,
@@ -1956,8 +2155,6 @@ function addTrialStudent() {
         return;
     }
 
-    // אם תלמיד ניסיון שנמחק בעבר נוסף מחדש ידנית,
-    // מחזירים אותו לרשימה הפעילה.
     if (
         !appData.trial_students_removed
     ) {
@@ -1975,12 +2172,18 @@ function addTrialStudent() {
     appData.trial_students[
         currentMonth
     ][name] = {
-        status: "לא שולם",
-        paid_amount: 0,
-        allocation: "current"
+        status:
+            "לא שולם",
+        paid_amount:
+            0,
+        allocation:
+            "current",
+        notes:
+            ""
     };
 
-    input.value = "";
+    input.value =
+        "";
 
     renderTrialTable();
 
@@ -2004,8 +2207,6 @@ function removeTrialStudent(name) {
         ][name];
     }
 
-    // מחיקה ידנית עוצרת את ההעברה האוטומטית
-    // של תלמיד הניסיון לחודשים הבאים.
     if (
         !appData.trial_students_removed
     ) {
@@ -2038,15 +2239,21 @@ function promoteTrialStudent(name) {
         appData.trial_students[
             currentMonth
         ][name] || {
-            status: "לא שולם",
-            paid_amount: 0,
-            allocation: "current"
+            status:
+                "לא שולם",
+            paid_amount:
+                0,
+            allocation:
+                "current",
+            notes:
+                ""
         };
 
     const trialFee =
         getTrialFee();
 
-    let paidSoFar = 0;
+    let paidSoFar =
+        0;
 
     if (
         trialData.status ===
@@ -2064,7 +2271,8 @@ function promoteTrialStudent(name) {
             0;
 
     } else {
-        paidSoFar = 0;
+        paidSoFar =
+            0;
     }
 
     if (
@@ -2081,12 +2289,14 @@ function promoteTrialStudent(name) {
     ) {
         appData.mid_month_cash[
             currentMonth
-        ] = 0;
+        ] =
+            0;
     }
 
     appData.mid_month_cash[
         currentMonth
-    ] += paidSoFar;
+    ] +=
+        paidSoFar;
 
     if (
         !appData.students.includes(
@@ -2105,7 +2315,8 @@ function promoteTrialStudent(name) {
     ) {
         appData.payments[
             currentMonth
-        ] = {};
+        ] =
+            {};
     }
 
     let initialStatus =
@@ -2138,17 +2349,35 @@ function promoteTrialStudent(name) {
     ][name] = {
         status:
             initialStatus,
-
         paid_amount:
             paidSoFar,
-
         allocation:
-            "current"
+            "current",
+        notes:
+            trialData.notes ||
+            ""
     };
 
     delete appData.trial_students[
         currentMonth
     ][name];
+
+    if (
+        !appData.trial_students_removed
+    ) {
+        appData.trial_students_removed =
+            [];
+    }
+
+    if (
+        !appData.trial_students_removed.includes(
+            name
+        )
+    ) {
+        appData.trial_students_removed.push(
+            name
+        );
+    }
 
     renderStudentsManagementList();
     renderTable();
@@ -2193,7 +2422,7 @@ async function saveDataToGitHub() {
                 apiUrl,
                 {
                     headers: {
-                        Accept:
+                        "Accept":
                             "application/vnd.github.v3+json"
                     }
                 }
@@ -2246,13 +2475,14 @@ async function saveDataToGitHub() {
             await fetch(
                 apiUrl,
                 {
-                    method: "PUT",
+                    method:
+                        "PUT",
 
                     headers: {
-                        Authorization:
+                        "Authorization":
                             `token ${token}`,
 
-                        Accept:
+                        "Accept":
                             "application/vnd.github.v3+json",
 
                         "Content-Type":
