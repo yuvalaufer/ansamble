@@ -81,14 +81,52 @@
       "רויטל לבנת": {
         "status": "שולם",
         "paid_amount": 50,
-        "allocation": "current",
-        "notes": ""
+        "allocation": "current"
       },
       "איילת  סלע": {
         "status": "לא שולם",
         "paid_amount": 0,
-        "allocation": "current",
-        "notes": "כבר היתה במפגש ניסיון. תצטרף בהמשך"
+        "allocation": "current"
+      },
+      "דרור": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current"
+      },
+      "טלי רובין": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current"
+      },
+      "דנה רובין": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current"
+      },
+      "שרון 0538230990": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current"
+      },
+      "קרן סימן טוב": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current"
+      },
+      "יפית מרימי": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current"
+      },
+      "איילת סלע": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current"
+      },
+      "חיסכון בתשלוםאחד  לסטודיו": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current"
       }
     }
   },
@@ -165,68 +203,57 @@
       "אנה ברודי": {
         "status": "שולם",
         "paid_amount": 380,
-        "allocation": "current",
-        "notes": ""
+        "allocation": "current"
       },
       "אסף נעים": {
-        "status": "לא שולם",
-        "paid_amount": 0,
-        "allocation": "current",
-        "notes": ""
+        "status": "שולם",
+        "paid_amount": 380,
+        "allocation": "current"
       },
       "הדס יריב": {
         "status": "שולם",
         "paid_amount": 380,
-        "allocation": "current",
-        "notes": ""
+        "allocation": "current"
       },
       "יעל פארן": {
         "status": "לא שולם",
         "paid_amount": 0,
-        "allocation": "current",
-        "notes": ""
+        "allocation": "current"
       },
       "ליאה שחרור וייס": {
-        "status": "לא שולם",
-        "paid_amount": 0,
-        "allocation": "current",
-        "notes": ""
+        "status": "שולם חלקי",
+        "paid_amount": 190,
+        "allocation": "current"
       },
       "מיכל": {
         "status": "לא שולם",
         "paid_amount": 0,
-        "allocation": "current",
-        "notes": ""
+        "allocation": "current"
       },
       "נטע בן יצחק": {
         "status": "לא שולם",
         "paid_amount": 0,
-        "allocation": "current",
-        "notes": ""
+        "allocation": "current"
       },
       "שיר שטיין": {
         "status": "שולם",
         "paid_amount": 380,
-        "allocation": "current",
-        "notes": ""
+        "allocation": "current"
       },
       "יערה אביאור": {
         "status": "שולם",
         "paid_amount": 380,
-        "allocation": "current",
-        "notes": ""
+        "allocation": "current"
       },
       "מירב שפר": {
         "status": "שולם",
         "paid_amount": 380,
-        "allocation": "current",
-        "notes": ""
+        "allocation": "current"
       },
       "שי גינת": {
         "status": "שולם חלקי",
         "paid_amount": 95,
-        "allocation": "current",
-        "notes": "שילמה עבור מפגש אקסטרה בספyמבר"
+        "allocation": "current"
       }
     }
   },
@@ -270,5 +297,6 @@
         "status": "לא שולם"
       }
     ]
-  }
+  },
+  "trial_students_removed": []
 }
