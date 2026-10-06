@@ -172,6 +172,12 @@
         "paid_amount": 95,
         "allocation": "current",
         "notes": "תגיע ל מפגש אחד בספטמבר"
+      },
+      "איילת  סלע": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
       }
     },
     "אוקטובר 2026": {
@@ -203,7 +209,7 @@
         "status": "שולם חלקי",
         "paid_amount": 190,
         "allocation": "current",
-        "notes": ""
+        "notes": "קיזוז עם תשלום 2 מפגשים אקסטרה מחודש קודם"
       },
       "מיכל": {
         "status": "לא שולם",
@@ -245,7 +251,7 @@
         "status": "לא שולם",
         "paid_amount": 0,
         "allocation": "current",
-        "notes": ""
+        "notes": "תצטרף בהמשך החודש"
       }
     }
   },
