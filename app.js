@@ -2079,41 +2079,24 @@ function deleteStudent(index) {
 
     if (
         !confirm(
-            `האם אתה בטוח שברצונך למחוק את ${name}?`
+            `האם אתה בטוח שברצונך להסיר את ${name} מרשימת התלמידים הפעילים? נתוני ההיסטוריה שלו יישמרו.`
         )
     ) {
         return;
     }
 
+    // מסירים רק מרשימת התלמידים הפעילים.
+    // נתוני התשלומים, הסטטוסים וההערות ההיסטוריים נשמרים ב-appData.payments.
     appData.students.splice(
         index,
         1
     );
 
-    if (
-        appData.payments
-    ) {
-        Object.keys(
-            appData.payments
-        ).forEach(month => {
-
-            if (
-                appData.payments[
-                    month
-                ][name]
-            ) {
-                delete appData.payments[
-                    month
-                ][name];
-            }
-        });
-    }
-
     renderStudentsManagementList();
     renderTable();
 
     showStatus(
-        `התלמיד ${name} הוסר מהרשימה.`,
+        `התלמיד ${name} הוסר מרשימת הפעילים. נתוני ההיסטוריה שלו נשמרו.`,
         "success"
     );
 }
