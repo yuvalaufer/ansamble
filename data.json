@@ -62,13 +62,13 @@
       "יפית מרימי": {
         "status": "שולם",
         "paid_amount": 50,
-        "allocation": "carried",
+        "allocation": "current",
         "notes": ""
       },
       "איילת סלע": {
         "status": "שולם",
         "paid_amount": 50,
-        "allocation": "carried",
+        "allocation": "current",
         "notes": ""
       },
       "חיסכון בתשלוםאחד  לסטודיו": {
