@@ -19,13 +19,13 @@
     "הדס יריב",
     "יעל פארן",
     "ליאה שחרור וייס",
-    "מיכל",
     "נטע בן יצחק",
     "שיר שטיין",
     "יערה אביאור",
     "מירב שפר",
     "שי גינת",
-    "איילת  סלע"
+    "איילת  סלע",
+    "טלי רובין"
   ],
   "trial_students": {
     "ספטמבר 2026": {
@@ -85,12 +85,6 @@
         "allocation": "current",
         "notes": ""
       },
-      "טלי רובין": {
-        "status": "לא שולם",
-        "paid_amount": 0,
-        "allocation": "current",
-        "notes": ""
-      },
       "שרון 0538230990": {
         "status": "לא שולם",
         "paid_amount": 0,
@@ -130,12 +124,6 @@
         "paid_amount": 380,
         "allocation": "current",
         "notes": ""
-      },
-      "מיכל": {
-        "status": "לא שולם",
-        "paid_amount": 0,
-        "allocation": "current",
-        "notes": "מצטרפת באוקטובר"
       },
       "שיר שטיין": {
         "status": "שולם",
@@ -178,6 +166,12 @@
         "paid_amount": 0,
         "allocation": "current",
         "notes": ""
+      },
+      "טלי רובין": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
       }
     },
     "אוקטובר 2026": {
@@ -210,12 +204,6 @@
         "paid_amount": 190,
         "allocation": "current",
         "notes": "קיזוז עם תשלום 2 מפגשים אקסטרה מחודש קודם"
-      },
-      "מיכל": {
-        "status": "לא שולם",
-        "paid_amount": 0,
-        "allocation": "current",
-        "notes": ""
       },
       "נטע בן יצחק": {
         "status": "לא שולם",
@@ -252,6 +240,12 @@
         "paid_amount": 0,
         "allocation": "current",
         "notes": "תצטרף בהמשך החודש"
+      },
+      "טלי רובין": {
+        "status": "שולם",
+        "paid_amount": 380,
+        "allocation": "current",
+        "notes": ""
       }
     }
   },
@@ -302,6 +296,7 @@
     "דנה רובין",
     "קרן סימן טוב",
     "יפית מרימי",
-    "איילת סלע"
+    "איילת סלע",
+    "טלי רובין"
   ]
 }
