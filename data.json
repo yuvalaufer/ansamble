@@ -96,6 +96,12 @@
         "paid_amount": 0,
         "allocation": "current",
         "notes": ""
+      },
+      "תשלום אחד לסטודיו שנחסך ויעבור לחודש הבא": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
       }
     }
   },
@@ -215,7 +221,7 @@
         "status": "שולם",
         "paid_amount": 380,
         "allocation": "current",
-        "notes": ""
+        "notes": "שולם ישירות לשירי"
       },
       "שיר שטיין": {
         "status": "שולם",
