@@ -70,6 +70,12 @@
         "paid_amount": 50,
         "allocation": "current",
         "notes": ""
+      },
+      "תשלום אחד לסטודיו שנחסך ויעבור לחודש הבא": {
+        "status": "שולם חלקי",
+        "paid_amount": 168,
+        "allocation": "carried",
+        "notes": ""
       }
     },
     "אוקטובר 2026": {
@@ -162,6 +168,12 @@
         "notes": ""
       },
       "טלי רובין": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "תשלום אחד לסטודיו שנחסך ויעבור לחודש הבא": {
         "status": "לא שולם",
         "paid_amount": 0,
         "allocation": "current",
