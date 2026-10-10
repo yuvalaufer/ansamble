@@ -191,7 +191,6 @@ function initAppUI() {
     ).value =
         appData.settings.studio_sessions_count;
 
-    // בכל פתיחה של האתר מתחילים תמיד בחודש הנוכחי לפי תאריך הדפדפן.
     const today = new Date();
 
     currentMonth =
@@ -648,7 +647,7 @@ function addNewMonthFromDropdown() {
         appData.payments = {};
 
     if (
-        !appData.payments[
+                !appData.payments[
             monthName
         ]
     ) {
@@ -1298,7 +1297,7 @@ function handleTrialStatusChange(selectEl) {
     } else if (
         status ===
         "שולם חלקי"
-    ) {
+            ) {
         paidInput.disabled =
             false;
 
@@ -1343,7 +1342,7 @@ function getCarriedOverIncomeForMonth(monthStr) {
         return 0;
     }
 
-    let prevMonth =
+    const prevMonth =
         allMonths[
             currentIndex - 1
         ];
@@ -1351,7 +1350,8 @@ function getCarriedOverIncomeForMonth(monthStr) {
     let carriedSum =
         0;
 
-    let prevPayments =
+    // תלמידים קבועים: רק תשלומים שסומנו במפורש כ-"נגרר לחודש הבא".
+    const prevPayments =
         appData.payments &&
         appData.payments[
             prevMonth
@@ -1365,34 +1365,37 @@ function getCarriedOverIncomeForMonth(monthStr) {
         prevPayments
     ).forEach(name => {
 
-        let pData =
+        const pData =
             prevPayments[name];
 
         if (
-            pData.allocation ===
+            pData.allocation !==
             "carried"
         ) {
-            if (
-                pData.status ===
-                "שולם"
-            ) {
-                carriedSum +=
-                    getMonthlyFeeForMonth(
-                        prevMonth
-                    );
+            return;
+        }
 
-            } else if (
-                pData.status ===
-                "שולם חלקי"
-            ) {
-                carriedSum +=
-                    pData.paid_amount ||
-                    0;
-            }
+        if (
+            pData.status ===
+            "שולם"
+        ) {
+            carriedSum +=
+                getMonthlyFeeForMonth(
+                    prevMonth
+                );
+
+        } else if (
+            pData.status ===
+            "שולם חלקי"
+        ) {
+            carriedSum +=
+                pData.paid_amount ||
+                0;
         }
     });
 
-    let prevTrials =
+    // תלמידי ניסיון: גם כאן רק תשלומים שסומנו במפורש כ-"נגרר לחודש הבא".
+    const prevTrials =
         appData.trial_students &&
         appData.trial_students[
             prevMonth
@@ -1406,63 +1409,32 @@ function getCarriedOverIncomeForMonth(monthStr) {
         prevTrials
     ).forEach(name => {
 
-        let tData =
+        const tData =
             prevTrials[name];
 
         if (
-            tData.allocation ===
+            tData.allocation !==
             "carried"
         ) {
-            if (
-                tData.status ===
-                "שולם"
-            ) {
-                carriedSum +=
-                    getTrialFee();
+            return;
+        }
 
-            } else if (
-                tData.status ===
-                "שולם חלקי"
-            ) {
-                carriedSum +=
-                    tData.paid_amount ||
-                    0;
-            }
+        if (
+            tData.status ===
+            "שולם"
+        ) {
+            carriedSum +=
+                getTrialFee();
 
         } else if (
-            !tData.allocation ||
-            tData.allocation ===
-            "current"
+            tData.status ===
+            "שולם חלקי"
         ) {
-            if (
-                tData.status ===
-                "שולם"
-            ) {
-                carriedSum +=
-                    getTrialFee();
-
-            } else if (
-                tData.status ===
-                "שולם חלקי"
-            ) {
-                carriedSum +=
-                    tData.paid_amount ||
-                    0;
-            }
+            carriedSum +=
+                tData.paid_amount ||
+                0;
         }
     });
-
-    if (
-        appData.mid_month_cash &&
-        appData.mid_month_cash[
-            prevMonth
-        ]
-    ) {
-        carriedSum +=
-            appData.mid_month_cash[
-                prevMonth
-            ];
-    }
 
     return carriedSum;
 }
@@ -1974,8 +1946,7 @@ function addStudent() {
 
     input.value =
         "";
-
-    renderStudentsManagementList();
+        renderStudentsManagementList();
     renderTable();
 
     showStatus(
