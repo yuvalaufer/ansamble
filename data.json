@@ -84,6 +84,12 @@
         "paid_amount": 0,
         "allocation": "current",
         "notes": ""
+      },
+      "טל 0506552687": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
       }
     }
   },
@@ -182,10 +188,10 @@
         "notes": ""
       },
       "יעל פארן": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם חלקי",
+        "paid_amount": 285,
         "allocation": "current",
-        "notes": ""
+        "notes": "ללא מפגש ה 7.10"
       },
       "ליאה שחרור וייס": {
         "status": "שולם חלקי",
@@ -262,7 +268,7 @@
     "אוקטובר 2026": [
       {
         "session_number": 1,
-        "status": "לא שולם"
+        "status": "שולם"
       },
       {
         "session_number": 2,
