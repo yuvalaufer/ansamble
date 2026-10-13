@@ -92,9 +92,9 @@
         "notes": ""
       },
       "טל 0506552687": {
-        "status": "לא שולם",
-        "paid_amount": 0,
-        "allocation": "current",
+        "status": "שולם",
+        "paid_amount": 50,
+        "allocation": "carried",
         "notes": ""
       }
     }
