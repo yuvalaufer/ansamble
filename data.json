@@ -95,7 +95,7 @@
       "טל 0506552687": {
         "status": "שולם",
         "paid_amount": 50,
-        "allocation": "carried",
+        "allocation": "current",
         "notes": "שולם בביט ליובל "
       }
     }
@@ -257,7 +257,7 @@
       "רון נחמיה": {
         "status": "שולם חלקי",
         "paid_amount": 262,
-        "allocation": "carried",
+        "allocation": "current",
         "notes": "שילם על 3 מפגשים לפי 350 לחודש"
       }
     }
@@ -291,7 +291,7 @@
       },
       {
         "session_number": 2,
-        "status": "לא שולם"
+        "status": "שולם"
       },
       {
         "session_number": 3,
