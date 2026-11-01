@@ -149,6 +149,9 @@ async function loadDataFromGitHub() {
         if (!appData.studio_sessions_payment)
             appData.studio_sessions_payment = {};
 
+        if (!appData.student_hidden_from)
+            appData.student_hidden_from = {};
+
         if (
             appData.settings.studio_rent_per_session === undefined
         ) {
@@ -647,7 +650,7 @@ function addNewMonthFromDropdown() {
         appData.payments = {};
 
     if (
-                !appData.payments[
+        !appData.payments[
             monthName
         ]
     ) {
@@ -731,8 +734,22 @@ function renderTable() {
             ])
         );
 
+    const currentDateObj = monthStringToDate(currentMonth);
+
     allStudents.forEach(
         student => {
+            // בדיקה כרונולוגית האם התלמיד הוסתר בחודש זה או לפני כן
+            if (
+                appData.student_hidden_from &&
+                appData.student_hidden_from[student]
+            ) {
+                const hiddenFromMonthStr = appData.student_hidden_from[student];
+                const hiddenFromDateObj = monthStringToDate(hiddenFromMonthStr);
+
+                if (currentDateObj && hiddenFromDateObj && currentDateObj >= hiddenFromDateObj) {
+                    return; // דילוג על תלמיד שהוסתר מחודש זה והלאה
+                }
+            }
 
             const pData =
                 monthPayments[
@@ -1297,7 +1314,7 @@ function handleTrialStatusChange(selectEl) {
     } else if (
         status ===
         "שולם חלקי"
-            ) {
+    ) {
         paidInput.disabled =
             false;
 
@@ -1350,7 +1367,6 @@ function getCarriedOverIncomeForMonth(monthStr) {
     let carriedSum =
         0;
 
-    // תלמידים קבועים: רק תשלומים שסומנו במפורש כ-"נגרר לחודש הבא".
     const prevPayments =
         appData.payments &&
         appData.payments[
@@ -1394,7 +1410,6 @@ function getCarriedOverIncomeForMonth(monthStr) {
         }
     });
 
-    // תלמידי ניסיון: גם כאן רק תשלומים שסומנו במפורש כ-"נגרר לחודש הבא".
     const prevTrials =
         appData.trial_students &&
         appData.trial_students[
@@ -1940,13 +1955,18 @@ function addStudent() {
         return;
     }
 
+    // אם התלמיד חזר לפעילות, נסיר את ההסתרה שלו כדי שיחזור להופיע מחודש זה והלאה
+    if (appData.student_hidden_from && appData.student_hidden_from[name]) {
+        delete appData.student_hidden_from[name];
+    }
+
     appData.students.push(
         name
     );
 
     input.value =
         "";
-        renderStudentsManagementList();
+    renderStudentsManagementList();
     renderTable();
 
     showStatus(
@@ -2031,6 +2051,15 @@ function updateStudentName(index) {
         });
     }
 
+    if (
+        appData.student_hidden_from &&
+        appData.student_hidden_from[oldName]
+    ) {
+        appData.student_hidden_from[newName] =
+            appData.student_hidden_from[oldName];
+        delete appData.student_hidden_from[oldName];
+    }
+
     renderStudentsManagementList();
     renderTable();
 
@@ -2056,12 +2085,16 @@ function deleteStudent(index) {
         return;
     }
 
-    // מסירים רק מרשימת התלמידים הפעילים.
-    // נתוני התשלומים, הסטטוסים וההערות ההיסטוריים נשמרים ב-appData.payments.
+    // מסירים מרשימת התלמידים הפעילים ומגדירים שיוסתר מהחודש הנוכחי והלאה
     appData.students.splice(
         index,
         1
     );
+
+    if (!appData.student_hidden_from) {
+        appData.student_hidden_from = {};
+    }
+    appData.student_hidden_from[name] = currentMonth;
 
     renderStudentsManagementList();
     renderTable();
@@ -2260,6 +2293,11 @@ function promoteTrialStudent(name) {
         appData.students.push(
             name
         );
+    }
+
+    // אם התלמיד היה חבוי בעבר (למשל נמחק בעבר וחזר כתלמיד קבוע), ננקה את ההסתרה
+    if (appData.student_hidden_from && appData.student_hidden_from[name]) {
+        delete appData.student_hidden_from[name];
     }
 
     if (
