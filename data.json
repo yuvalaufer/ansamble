@@ -24,7 +24,6 @@
     "יערה אביאור",
     "מירב שפר",
     "שי גינת",
-    "איילת  סלע",
     "טלי רובין",
     "רון נחמיה",
     "תמר שוב (סיביליה)"
@@ -96,6 +95,26 @@
       "טל 0506552687": {
         "status": "שולם",
         "paid_amount": 50,
+        "allocation": "current",
+        "notes": "שולם בביט ליובל "
+      }
+    },
+    "נובמבר 2026": {
+      "רויטל לבנת": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "שרון 0538230990": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "טל 0506552687": {
+        "status": "לא שולם",
+        "paid_amount": 0,
         "allocation": "current",
         "notes": "שולם בביט ליובל "
       }
@@ -247,7 +266,7 @@
         "status": "לא שולם",
         "paid_amount": 0,
         "allocation": "current",
-        "notes": "תצטרף בהמשך החודש"
+        "notes": "לא מצטרפת בסוף"
       },
       "טלי רובין": {
         "status": "שולם",
@@ -262,8 +281,94 @@
         "notes": "שילם על 3 מפגשים לפי 350 לחודש"
       },
       "תמר שוב (סיביליה)": {
-        "status": "שולם חלקי",
-        "paid_amount": 50,
+        "status": "שולם",
+        "paid_amount": 380,
+        "allocation": "current",
+        "notes": ""
+      }
+    },
+    "נובמבר 2026": {
+      "אנה ברודי": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "אסף נעים": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "הדס יריב": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "יעל פארן": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "ליאה שחרור וייס": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "נטע בן יצחק": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "שיר שטיין": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "יערה אביאור": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "מירב שפר": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "שי גינת": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "איילת  סלע": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "טלי רובין": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "רון נחמיה": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "תמר שוב (סיביליה)": {
+        "status": "לא שולם",
+        "paid_amount": 0,
         "allocation": "current",
         "notes": ""
       }
@@ -299,6 +404,24 @@
       {
         "session_number": 2,
         "status": "שולם"
+      },
+      {
+        "session_number": 3,
+        "status": "שולם"
+      },
+      {
+        "session_number": 4,
+        "status": "שולם"
+      }
+    ],
+    "נובמבר 2026": [
+      {
+        "session_number": 1,
+        "status": "לא שולם"
+      },
+      {
+        "session_number": 2,
+        "status": "לא שולם"
       },
       {
         "session_number": 3,
