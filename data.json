@@ -105,6 +105,14 @@
         "allocation": "current",
         "notes": ""
       }
+    },
+    "דצמבר 2026": {
+      "רויטל לבנת": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      }
     }
   },
   "payments": {
@@ -359,6 +367,80 @@
         "allocation": "current",
         "notes": ""
       }
+    },
+    "דצמבר 2026": {
+      "אנה ברודי": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "אסף נעים": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "הדס יריב": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "יעל פארן": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "ליאה שחרור וייס": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "נטע בן יצחק": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "שיר שטיין": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "מירב שפר": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "שי גינת": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "טלי רובין": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "רון נחמיה": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "תמר שוב (סיביליה)": {
+        "status": "לא שולם",
+        "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      }
     }
   },
   "monthly_fees": {
@@ -402,6 +484,24 @@
       }
     ],
     "נובמבר 2026": [
+      {
+        "session_number": 1,
+        "status": "לא שולם"
+      },
+      {
+        "session_number": 2,
+        "status": "לא שולם"
+      },
+      {
+        "session_number": 3,
+        "status": "לא שולם"
+      },
+      {
+        "session_number": 4,
+        "status": "לא שולם"
+      }
+    ],
+    "דצמבר 2026": [
       {
         "session_number": 1,
         "status": "לא שולם"
