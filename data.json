@@ -26,7 +26,8 @@
     "שי גינת",
     "טלי רובין",
     "רון נחמיה",
-    "תמר שוב (סיביליה)"
+    "תמר שוב (סיביליה)",
+    "אור קרני"
   ],
   "trial_students": {
     "ספטמבר 2026": {
@@ -291,14 +292,14 @@
         "notes": ""
       },
       "אסף נעים": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם",
+        "paid_amount": 380,
         "allocation": "current",
         "notes": ""
       },
       "הדס יריב": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם",
+        "paid_amount": 380,
         "allocation": "current",
         "notes": ""
       },
@@ -321,8 +322,8 @@
         "notes": ""
       },
       "שיר שטיין": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם",
+        "paid_amount": 380,
         "allocation": "current",
         "notes": ""
       },
@@ -365,6 +366,12 @@
       "תמר שוב (סיביליה)": {
         "status": "לא שולם",
         "paid_amount": 0,
+        "allocation": "current",
+        "notes": ""
+      },
+      "אור קרני": {
+        "status": "שולם",
+        "paid_amount": 380,
         "allocation": "current",
         "notes": ""
       }
