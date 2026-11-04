@@ -364,8 +364,8 @@
         "notes": ""
       },
       "תמר שוב (סיביליה)": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם",
+        "paid_amount": 380,
         "allocation": "current",
         "notes": ""
       },
