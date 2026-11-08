@@ -316,10 +316,10 @@
         "notes": ""
       },
       "נטע בן יצחק": {
-        "status": "לא שולם",
-        "paid_amount": 0,
+        "status": "שולם",
+        "paid_amount": 380,
         "allocation": "current",
-        "notes": ""
+        "notes": "ה6עבר לשירי בביט"
       },
       "שיר שטיין": {
         "status": "שולם",
@@ -494,7 +494,7 @@
     "נובמבר 2026": [
       {
         "session_number": 1,
-        "status": "לא שולם"
+        "status": "שולם"
       },
       {
         "session_number": 2,
